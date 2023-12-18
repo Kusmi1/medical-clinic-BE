@@ -1,58 +1,94 @@
 package com.example.medicalclinic.feature.user.model;
 
-import com.example.medicalclinic.feature.userAccount.model.UserAccount;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import jakarta.validation.constraints.NotBlank;
+import com.example.medicalclinic.feature.role.model.Role;
+import java.util.HashSet;
+import java.util.Set;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "_user")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table( name = "users",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "email")
+    })
 public class User {
-
   @Id
-  @GeneratedValue
-  @Column(name = "user_id")
-  private UUID id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-  @NotBlank(message = "Username cannot be empty")
-  @Column(unique = true, name = "username", nullable = false)
-
+  @NotBlank
+  @Size(max = 20)
   private String username;
 
-  @Column(name = "firstname")
-  private String firstname;
-
-  @Column(name = "lastname")
-  private String lastname;
-
-  @NotBlank(message = "Email can not be empty")
-  @Email(message = "Please insert a valid message")
-  @Column(unique = true, name = "email", nullable = false)
+  @NotBlank
+  @Size(max = 50)
+  @Email
   private String email;
 
-  @NotBlank(message = "Password can not be empty")
-  @Column(name = "password", nullable = false)
+  @NotBlank
+  @Size(max = 120)
   private String password;
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @PrimaryKeyJoinColumn
-  private UserAccount account;
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+  private Set<Role> roles = new HashSet<>();
+
+  public User() {
+  }
+
+  public User(String username, String email, String password) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public Set<Role> getRoles() {
+    return roles;
+  }
+
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+  }
 }
+
+
+//  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//  @PrimaryKeyJoinColumn
+//  private UserAccount account;
+//}
