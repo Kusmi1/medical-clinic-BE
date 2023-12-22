@@ -1,7 +1,7 @@
 package com.example.medicalclinic.feature.doctor.model;
 
 import com.example.medicalclinic.feature.specialization.model.Specialization;
-import com.example.medicalclinic.feature.visit.model.Visit;
+import com.example.medicalclinic.feature.visits.model.Visit;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +30,7 @@ public class Doctor {
   @Id
   @GeneratedValue
   @Column(name = "doctor_id")
-  private UUID id;
+  private Long id;
 
   @Column( name = "name")
   private String name;
@@ -48,5 +48,10 @@ public class Doctor {
 
   @OneToMany(mappedBy = "doctor")
   private List<Visit> visits;
+
+
+  public Set<Specialization> getSpecialization() {
+    return specializations;
+  }
 
 }
