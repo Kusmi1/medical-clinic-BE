@@ -5,6 +5,4 @@ public enum ERole {
   ROLE_NURSE,
   ROLE_DOCTOR
 
-//  ROLE_MODERATOR,
-//  ROLE_ADMIN
 }

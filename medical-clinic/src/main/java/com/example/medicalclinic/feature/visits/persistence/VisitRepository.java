@@ -3,6 +3,7 @@ package com.example.medicalclinic.feature.visits.persistence;
 import com.example.medicalclinic.feature.visits.model.Visit;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,10 +19,9 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
   @Query("SELECT v FROM Visit v " +
       "WHERE :specializationName IN (SELECT s.name FROM v.doctor.specializations s) " +
       "AND v.available = true " +
-      "AND v.visitDate >= current_date " +
+      "AND v.visitDate >= DATE(:visitDate)" +
       "ORDER BY v.visitDate")
   List<Visit> findAvailableVisitsBySpecializationOrderedByDate(
-      @Param("specializationName") String specializationName
-  );
-
+      @Param("specializationName")   String specializationName,
+      @Param("visitDate") Optional<Date> visitDate);
 }

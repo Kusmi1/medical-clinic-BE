@@ -9,8 +9,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Setter
+@Getter
 @Table( name = "users",
     uniqueConstraints = {
         @UniqueConstraint(columnNames = "username"),
@@ -68,8 +72,6 @@ public class User {
     this.password = password;
   }
 
-//  public User(String firstname, String secondname, String lastname, String username, String email, String encode) {
-//  }
 
   public String getFirstname() {
     return firstName;

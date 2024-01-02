@@ -1,18 +1,28 @@
 package com.example.medicalclinic.feature.visits.controller;
 
+import com.example.medicalclinic.exception.VisitNotAvailableException;
+import com.example.medicalclinic.feature.visits.model.HourDTO;
 import com.example.medicalclinic.feature.visits.model.Visit;
 import com.example.medicalclinic.feature.visits.model.VisitDTO;
 import com.example.medicalclinic.feature.visits.service.impl.VisitServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,11 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/visit")
 @CrossOrigin
 public class VisitController {
+
   private VisitServiceImpl visitService;
 
   @Autowired
-  public VisitController(VisitServiceImpl visitServiceImpl){
-    this.visitService=visitServiceImpl;
+  public VisitController(VisitServiceImpl visitServiceImpl) {
+    this.visitService = visitServiceImpl;
   }
 
   @GetMapping()
@@ -76,9 +87,51 @@ public class VisitController {
   }
 
   @GetMapping("/{specializationName}")
-  public ResponseEntity<List<VisitDTO>> getAvailableVisitsBySpecialization(@PathVariable String specializationName) {
-    List<VisitDTO> availableVisits = visitService.getAvailableVisitsBySpecialization(specializationName);
+  public ResponseEntity<List<VisitDTO>> getAvailableVisitsBySpecialization(
+      @PathVariable String specializationName,
+      @RequestParam(name = "visitDate", required = false)
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date visitDate) {
+    List<VisitDTO> availableVisits = visitService.getAvailableVisitsBySpecialization(
+        specializationName,
+        Optional.ofNullable(visitDate));
     return ResponseEntity.ok(availableVisits);
+  }
+
+  @GetMapping("/byId/{visitId}")
+  public ResponseEntity<VisitDTO> getVisitById(@PathVariable Long visitId) {
+    try {
+      VisitDTO visitDTO = visitService.getVisitById(visitId);
+      return new ResponseEntity<>(visitDTO, HttpStatus.OK);
+    } catch (EntityNotFoundException e) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @PostMapping("/visitId/{visitId}/user/{userId}")
+  public ResponseEntity<String> bookVisit(@PathVariable Long visitId, @PathVariable Long userId) {
+    try {
+      visitService.bookVisit(visitId, userId);
+      return ResponseEntity.ok("User added to visit successfully.");
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Visit or User not found.");
+
+    } catch (VisitNotAvailableException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+  }
+
+  @PutMapping("/visitId/{visitId}")
+  public ResponseEntity<String> deleteVisitFromUser(@PathVariable("visitId") Long visitId)
+      throws NotFoundException {
+    try {
+      visitService.deleteVisit(visitId);
+      return ResponseEntity.ok("Visit updated successfully");
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Visit or User not found.");
+
+    } catch (VisitNotAvailableException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
   }
 }
 

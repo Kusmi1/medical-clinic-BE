@@ -1,6 +1,5 @@
 package com.example.medicalclinic.feature.visits.model;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,14 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class VisitDTO {
+public class HourDTO {
   private Long visitId;
-  private String specialization;
-  private Long doctorId;
-  private String doctorName;
-  private String doctorSurname;
-  private String date;
   private String hour;
-  private List<HourDTO> hours;
-
 }

@@ -49,9 +49,6 @@ public class Visit {
   @Column(name = "hour")
   private String hours;
 
-//  @Enumerated(EnumType.STRING)
-//  @Column(length = 20)
-//  private EVisitStatus visitStatus;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "doctor_id")
