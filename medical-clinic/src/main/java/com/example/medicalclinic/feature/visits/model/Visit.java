@@ -1,8 +1,11 @@
 package com.example.medicalclinic.feature.visits.model;
 
 import com.example.medicalclinic.feature.doctor.model.Doctor;
+import com.example.medicalclinic.feature.medicalClinic.model.MedicalClinic;
 import com.example.medicalclinic.feature.userAccount.model.UserAccount;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,10 +16,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,15 +57,19 @@ public class Visit {
   @Column(name = "hour")
   private String hours;
 
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "doctor_id")
   private Doctor doctor;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "userAccount_id")
+  @JoinColumn(name = "userAccMount_id")
   private UserAccount userAccount;
-  @Override
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "medical_clinic_id")
+
+  private MedicalClinic medicalClinic;
+
   public String toString() {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     return formatter.format(visitDate);

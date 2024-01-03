@@ -23,13 +23,8 @@ public class DoctorController {
   @Autowired
   public final DoctorServiceImpl doctorService;
 
-
-  @GetMapping
-  public List<Doctor> getAllDoctors(){
-    return doctorService.getAllDoctors();
-  }
   @GetMapping("/all")
-  public ResponseEntity<List<Doctor>> getAllDoctors2() {
+  public ResponseEntity<List<Doctor>> getAllDoctors() {
     List<Doctor> doctors = doctorService.getAllDoctors();
     if (!doctors.isEmpty()) {
       return new ResponseEntity<>(doctors, HttpStatus.OK);

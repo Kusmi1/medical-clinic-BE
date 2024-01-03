@@ -155,20 +155,21 @@ public class VisitController {
     }
   }
 
-//  @PostMapping
   @PostMapping("/add-visit")
   public ResponseEntity<String> addVisit(
       @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date visitDate,
       @RequestParam Long doctorId,
       @RequestParam String hours,
-      @RequestParam int price
+      @RequestParam int price,
+      @RequestParam Long clinicId
   ) {
     try {
       visitService.addVisit(
           visitDate,
           doctorId,
           hours,
-          price);
+          price,
+          clinicId);
       return ResponseEntity.ok("Visit added successfully.");
     } catch (RuntimeException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

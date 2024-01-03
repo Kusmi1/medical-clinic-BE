@@ -1,5 +1,6 @@
 package com.example.medicalclinic.feature.visits.model;
 
+import com.example.medicalclinic.feature.medicalClinic.model.MedicalClinic;
 import com.example.medicalclinic.feature.userAccount.model.UserAccount;
 import java.util.List;
 import java.util.UUID;
@@ -25,11 +26,29 @@ public class VisitDTO {
   private String hour;
   private List<HourDTO> hours;
 
+  private Long medicalClinicId;
+  private String medicalClinicName;
+  private String medicalClinicStreet;
+  private String medicalClinicHouseNo;
+  private String medicalClinicFlatNo;
+  private String medicalClinicPostalCode;
+
   public void setUserInformation(UserAccount userAccount) {
     if (userAccount != null) {
       this.userId = userAccount.getId();
       this.userName = userAccount.getUser().getFirstname();
       this.userSurname = userAccount.getUser().getLastname();
+    }
+  }
+
+  public void setMedicalClinicInformation(MedicalClinic medicalClinic) {
+    if (medicalClinic != null) {
+      this.medicalClinicId = medicalClinic.getId();
+      this.medicalClinicName = medicalClinic.getName();
+      this.medicalClinicStreet = medicalClinic.getStreet();
+      this.medicalClinicHouseNo = medicalClinic.getHouseNo();
+      this.medicalClinicFlatNo = medicalClinic.getFlatNo();
+      this.medicalClinicPostalCode = medicalClinic.getPostalCode();
     }
   }
 }
