@@ -1,6 +1,5 @@
-package com.example.medicalclinic.feature.visits.model;
+package com.example.medicalclinic.feature.user.model;
 
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class HourDTO {
-  private UUID visitId;
-  private String hour;
+public class UserDto {
+  Long id;
+  String name;
+  String surname;
+
 }

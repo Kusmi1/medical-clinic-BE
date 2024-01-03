@@ -9,12 +9,15 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,8 +34,8 @@ public class Visit {
 
   @Id
   @GeneratedValue
-  @Column(name = "visit_id")
-  private Long id;
+//  (strategy = GenerationType.IDENTITY)@Column(name = "visit_id")
+  private UUID id;
 
   @JsonFormat(pattern = "yyyy-MM-dd")
   @Column(name = "visitDate")

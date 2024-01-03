@@ -2,6 +2,8 @@ package com.example.medicalclinic.feature.visits.service.impl;
 
 import com.example.medicalclinic.exception.EmptyListException;
 import com.example.medicalclinic.exception.VisitNotAvailableException;
+import com.example.medicalclinic.feature.doctor.model.Doctor;
+import com.example.medicalclinic.feature.doctor.persistence.DoctorRepository;
 import com.example.medicalclinic.feature.specialization.model.Specialization;
 import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.persistence.UserRepository;
@@ -13,16 +15,14 @@ import com.example.medicalclinic.feature.visits.persistence.VisitRepository;
 import com.example.medicalclinic.feature.visits.service.VisitService;
 import jakarta.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -32,10 +32,12 @@ public class VisitServiceImpl implements VisitService {
 
   private VisitRepository visitRepository;
   private UserRepository userRepository;
+  private DoctorRepository doctorRepository;
 
-  public VisitServiceImpl(UserRepository userRepository, VisitRepository visitRepository) {
+  public VisitServiceImpl(UserRepository userRepository, VisitRepository visitRepository,DoctorRepository doctorRepository) {
     this.visitRepository = visitRepository;
     this.userRepository = userRepository;
+    this.doctorRepository = doctorRepository;
   }
   public List<Visit> findAllVisits() {
     return visitRepository.findAll();
@@ -46,7 +48,7 @@ public class VisitServiceImpl implements VisitService {
     return visits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
   }
 
-  public List<VisitDTO> getAllVisitsForDocotr(Long userId) {
+  public List<VisitDTO> getAllVisitsForDoctor(Long userId) {
     List<Visit> visits = visitRepository.findByUserAccountId(userId);
     return visits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
   }
@@ -69,10 +71,45 @@ public class VisitServiceImpl implements VisitService {
     return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
   }
 
+public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<Long> doctorId) {
+  List<Visit> futureBookedVisits;
+
+
+  if (!visitRepository.findAllFutureVisits(userId, doctorId,
+      new Date()).isEmpty()) {
+    futureBookedVisits = visitRepository.findAllFutureVisits(userId, doctorId,  new Date());
+    System.out.println("futureBookedVisits all "+futureBookedVisits);
+    return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
+
+  }
+    if (userId.isPresent() && visitRepository.findAllFutureVisits(userId, null, new Date())
+        .isEmpty()) {
+      futureBookedVisits = visitRepository.findAllFutureVisits(null, doctorId,
+          new Date());
+      System.out.println("futureBookedVisits userId"+futureBookedVisits+" userId "+userId);
+      return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
+
+    }
+   if  (doctorId.isPresent() && visitRepository.findAllFutureVisits(null, doctorId, new Date())
+      .isEmpty()) {
+    futureBookedVisits=visitRepository.findAllFutureVisits(userId, null,
+        new Date());
+     System.out.println("futureBookedVisits doctorId"+futureBookedVisits+" userId "+doctorId);
+  }else {
+     System.out.println("futureBookedVisits dempoty list");
+      return visitRepository.findAllFutureVisitsbyEmptyValue(new Date())
+          .stream().map(this::convertToVisitDTO).collect(Collectors.toList());
+
+
+  }
+
+  return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
+}
   public List<VisitDTO> getAvailableVisitsBySpecialization(String specializationName, Optional<Date> choosenDate) {
     if (choosenDate.isEmpty()) {
       choosenDate = Optional.of(new Date());
     }
+
 
     List<Visit> availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByDate(specializationName, choosenDate);
     Map<String, VisitDTO> uniqueVisitsMap = new HashMap<>();
@@ -106,11 +143,10 @@ public class VisitServiceImpl implements VisitService {
         existingVisitDTO.getHours().add(hourDto);
       }
     }
-
-    return new ArrayList<>(uniqueVisitsMap.values());
+ return new ArrayList<>(uniqueVisitsMap.values());
   }
 
-  public void bookVisit (Long visitId, Long userId) {
+  public void bookVisit (UUID visitId, Long userId) {
     try {
       Visit visit = visitRepository.findById(visitId)
           .orElseThrow(() -> {
@@ -137,7 +173,7 @@ public class VisitServiceImpl implements VisitService {
       throw new VisitNotAvailableException("Visit not found");
     }
   }
-  public void deleteVisit(Long visitId) throws NotFoundException {
+  public void deleteVisit(UUID visitId) throws NotFoundException {
     try {
     Visit visit = visitRepository.findById(visitId)
         .orElseThrow(() -> new NotFoundException());
@@ -156,11 +192,44 @@ public class VisitServiceImpl implements VisitService {
     }
   }
 
-  public VisitDTO getVisitById(Long visitId) {
+  public VisitDTO getVisitById(UUID visitId) {
     Visit visit = visitRepository.findById(visitId)
         .orElseThrow(() -> new IllegalArgumentException("Visit not found"));
       return convertToVisitDTO(visit);
 
+  }
+
+  public void addVisit(Date visitDate, Long doctorId, String hours, int price) {
+    try {
+      Doctor doctor = doctorRepository.findById(doctorId)
+          .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+
+
+      if (isDoctorAvailable(doctor, visitDate, hours)) {
+        Visit visit = new Visit();
+        visit.setVisitDate(visitDate);
+        visit.setAvailable(true);
+        visit.setPrice(price);
+        visit.setHours(hours);
+        visit.setDoctor(doctor);
+
+        visitRepository.save(visit);
+      } else {
+        throw new RuntimeException("Doctor is not available at the specified date and hour");
+      }
+    } catch (EntityNotFoundException e) {
+      e.printStackTrace();
+      throw new RuntimeException("Error adding visit: Doctor not found");
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException("Error adding visit");
+    }
+  }
+
+  private boolean isDoctorAvailable(Doctor doctor, Date visitDate, String hours) {
+    // Check if the doctor has a visit at the specified date and hour
+    Optional<Visit> existingVisit = visitRepository.findByDoctorAndVisitDateAndHours(doctor, visitDate, hours);
+    return existingVisit.isEmpty();
   }
 
   private VisitDTO convertToVisitDTO(Visit visit) {
@@ -184,6 +253,13 @@ public class VisitServiceImpl implements VisitService {
     dto.setDate(new SimpleDateFormat("yyyy-MM-dd").format(visit.getVisitDate()));
     dto.setHour(visit.getHours());
     dto.setHours(hours);
+
+    UserAccount userAccount = visit.getUserAccount();
+    if (userAccount != null) {
+      dto.setUserId(userAccount.getId());
+      dto.setUserName(userAccount.getUser().getFirstname());
+      dto.setUserSurname(userAccount.getUser().getLastname());
+    }
     return dto;
   }
 
