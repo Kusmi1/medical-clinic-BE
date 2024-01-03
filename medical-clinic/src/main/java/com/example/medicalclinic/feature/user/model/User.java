@@ -1,6 +1,7 @@
 package com.example.medicalclinic.feature.user.model;
 
 import com.example.medicalclinic.feature.role.model.Role;
+import com.example.medicalclinic.feature.userAccount.model.UserAccount;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,8 +9,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Setter
+@Getter
 @Table( name = "users",
     uniqueConstraints = {
         @UniqueConstraint(columnNames = "username"),
@@ -20,7 +25,9 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-
+  @NotBlank
+  @Size(max = 20)
+  private String username;
   @NotBlank
   @Size( max = 20)
   private String firstName;
@@ -31,10 +38,6 @@ public class User {
   @NotBlank
   @Size( max = 20)
   private String lastName;
-
-  @NotBlank
-  @Size(max = 20)
-  private String username;
 
   @NotBlank
   @Size(max = 50)
@@ -69,8 +72,6 @@ public class User {
     this.password = password;
   }
 
-//  public User(String firstname, String secondname, String lastname, String username, String email, String encode) {
-//  }
 
   public String getFirstname() {
     return firstName;
@@ -136,10 +137,9 @@ public class User {
   public void setRoles(Set<Role> roles) {
     this.roles = roles;
   }
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @PrimaryKeyJoinColumn
+  private UserAccount account;
+
 }
-
-
-//  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//  @PrimaryKeyJoinColumn
-//  private UserAccount account;
-//}

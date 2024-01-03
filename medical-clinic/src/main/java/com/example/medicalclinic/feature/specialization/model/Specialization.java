@@ -26,6 +26,4 @@ public class Specialization {
 
   @Column (name ="name")
   private String name;
-
-
 }

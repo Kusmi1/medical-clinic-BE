@@ -9,6 +9,8 @@ import com.example.medicalclinic.feature.role.model.Role;
 import com.example.medicalclinic.feature.role.persistence.RoleRepository;
 import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.persistence.UserRepository;
+import com.example.medicalclinic.feature.userAccount.model.UserAccount;
+import com.example.medicalclinic.feature.userAccount.persistence.UserAccountRepository;
 import com.example.medicalclinic.security.jwt.JwtUtils;
 import com.example.medicalclinic.security.services.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -47,6 +49,9 @@ public class AuthController {
 
   @Autowired
   JwtUtils jwtUtils;
+
+  @Autowired
+  private UserAccountRepository userAccountRepository;
 
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -90,13 +95,13 @@ public class AuthController {
       strRoles.forEach(role -> {
         switch (role) {
           case "admin":
-            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+            Role adminRole = roleRepository.findByName(ERole.ROLE_DOCTOR)
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(adminRole);
 
             break;
           case "mod":
-            Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+            Role modRole = roleRepository.findByName(ERole.ROLE_NURSE)
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(modRole);
 
@@ -111,6 +116,11 @@ public class AuthController {
 
     user.setRoles(roles);
     userRepository.save(user);
+
+    UserAccount userAccount = new UserAccount();
+    userAccount.setId(user.getId());
+    userAccount.setBalance(0.0);
+    userAccountRepository.save(userAccount);
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }

@@ -1,49 +1,49 @@
-INSERT INTO _user (user_id, username, firstname, lastname, email, password)
+INSERT INTO roles (id, name)
 VALUES
-    ('4c029e1e-755f-4a0a-8a6b-496f6817d58d', 'JanKowalski', 'Jan', 'Kowalski', 'jankowalski@gmail.com', 'Password1!'),
-    ('da6a6e0d-7574-4ab1-836b-2c3ff3b4eb7e', 'AnnaNowak', 'Anna', 'Nowak', 'annanowak@gmail.com', 'Password1!'),
-    ('d67ef81a-0d8e-4c64-8df7-ff6d15c5a2fc', 'RobertWiśniewski', 'Robert', 'Wiśniewski', 'robertwisniewski@gmail.com', 'Password1!'),
-    ('41d7b0fb-7a34-495d-b8e6-87032b25e5ee', 'EmiliaDąbrowska', 'Emilia', 'Dąbrowska', 'emiliadabrowska@gmail.com', 'Password1!'),
-    ('f27e2dd3-cf98-47b0-bd7a-c99a181da5c3', 'MichałLewandowski', 'Michał', 'Lewandowski', 'michallewandowski@gmail.com', 'Password1!'),
-    ('7f5b8a65-0f5e-4fe9-9a34-e8ebba82d8d8', 'OlgaWójcik', 'Olga', 'Wójcik', 'olgawojcik@gmail.com', 'Password1!'),
-    ('9de64b18-1c6f-4f91-b290-8eb152c35475', 'WojciechKowalczyk', 'Wojciech', 'Kowalczyk', 'wojciechkowalczyk@gmail.com', 'Password1!'),
-    ('06cdd34c-3ff3-45f7-9aa5-d01c2fb42a9b', 'ZofiaKamińska', 'Zofia', 'Kamińska', 'zofiakaminska@gmail.com', 'Password1!'),
-    ('31e61f13-1a09-4319-8f7b-5f76dd01700f', 'JakubZieliński', 'Jakub', 'Zieliński', 'jakubzielinski@gmail.com', 'Password1!'),
-    ('9c4d5a88-0f4d-4a53-901e-d5fbb7752456', 'KarolinaSzymańska', 'Karolina', 'Szymańska', 'karolinaszymanska@gmail.com', 'Password1!'),
-    ('225ec5e0-f5b1-45e6-bbf7-8c6c090f842e', 'BartłomiejWoźniak', 'Bartłomiej', 'Woźniak', 'bartlomiejwozniak@gmail.com', 'Password1!'),
-    ('965702b9-0f50-471e-9df8-4a04a1f8e625', 'AnnaKowal', 'Anna', 'Kowal', 'annakowal@gmail.com', 'Password1!'),
-    ('0dd75f99-3f3d-4cc5-80c1-2d53a33b8c4f', 'ErykHarris', 'Eryk', 'Harris', 'erykharris@gmail.com', 'Password1!'),
-    ('13fcd5d1-07b1-4a97-9b93-2d4983d60c3e', 'IzabelaMazur', 'Izabela', 'Mazur', 'izabelamazur@gmail.com', 'Password1!'),
-    ('1d74b6ce-9a89-4d7f-9e29-2fcf9a46a3a2', 'MateuszNowacki', 'Mateusz', 'Nowacki', 'mateusznowacki@gmail.com', 'Password1!'),
-    ('2e3a6f1a-cf6c-46f1-85d3-fb148a5c9f8c', 'AmeliaKowalewska', 'Amelia', 'Kowalewska', 'ameliakowalewska@gmail.com', 'Password1!'),
-    ('4c005f4b-77e2-4e6e-a1a7-0b818e8f7743', 'FilipWójcik', 'Filip', 'Wójcik', 'filipwojcik@gmail.com', 'Password1!'),
-    ('2425d3aa-fb4c-42d2-987e-33a6da4d482e', 'MajaTurner', 'Maja', 'Turner', 'majaturner@gmail.com', 'Password1!'),
-    ('be0e3ce9-5b4b-4e7a-b3e1-6ea140b0a507', 'NoahParker', 'Noah', 'Parker', 'noahparker@gmail.com', 'Password1!'),
-    ('6c16a93f-b21d-4e1c-8e54-2e69b32b1c0b', 'AvaEvans', 'Ava', 'Evans', 'avaevans@gmail.com', 'Password1!');
+
+(1, 'ROLE_USER'),
+(2, 'ROLE_DOCTOR'),
+(3, 'ROLE_NURSE');
+
+INSERT INTO users (id, username, first_name, last_name, email, password)
+VALUES
+    ('1', 'kusmi', 'Jan', 'Kowalski', 'jankowalski@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO');
+/*
+Haslo: Haslo1234!
+*/
+
+INSERT INTO user_roles (role_id, user_id)
+VALUES
+    (1,1);
+
+INSERT INTO user_account(user_id, balance)
+VALUES
+(1, 100);
+
 
 
 INSERT INTO _doctor (doctor_id, name, surname)
 VALUES
-    ('4c029e1e-755f-4a0a-8a6b-496f6817d58d', 'Jan', 'Kowalski'),
-    ('da6a6e0d-7574-4ab1-836b-2c3ff3b4eb7e', 'Anna', 'Nowak'),
-    ('d67ef81a-0d8e-4c64-8df7-ff6d15c5a2fc', 'Robert', 'Wiśniewski'),
-    ('41d7b0fb-7a34-495d-b8e6-87032b25e5ee', 'Emilia', 'Dąbrowska'),
-    ('f27e2dd3-cf98-47b0-bd7a-c99a181da5c3', 'Michał', 'Lewandowski'),
-    ('7f5b8a65-0f5e-4fe9-9a34-e8ebba82d8d8', 'Olga', 'Wójcik'),
-    ('9de64b18-1c6f-4f91-b290-8eb152c35475', 'Wojciech', 'Kowalczyk'),
-    ('06cdd34c-3ff3-45f7-9aa5-d01c2fb42a9b', 'Zofia', 'Kamińska'),
-    ('31e61f13-1a09-4319-8f7b-5f76dd01700f', 'Jakub', 'Zieliński'),
-    ('9c4d5a88-0f4d-4a53-901e-d5fbb7752456', 'Karolina', 'Szymańska'),
-    ('225ec5e0-f5b1-45e6-bbf7-8c6c090f842e', 'Bartłomiej', 'Woźniak'),
-    ('965702b9-0f50-471e-9df8-4a04a1f8e625', 'Anna', 'Kowal'),
-    ('0dd75f99-3f3d-4cc5-80c1-2d53a33b8c4f', 'Eryk', 'Harris'),
-    ('13fcd5d1-07b1-4a97-9b93-2d4983d60c3e', 'Izabela', 'Mazur'),
-    ('1d74b6ce-9a89-4d7f-9e29-2fcf9a46a3a2', 'Mateusz', 'Nowacki'),
-    ('2e3a6f1a-cf6c-46f1-85d3-fb148a5c9f8c', 'Amelia', 'Kowalewska'),
-    ('4c005f4b-77e2-4e6e-a1a7-0b818e8f7743', 'Filip', 'Wójcik'),
-    ('2425d3aa-fb4c-42d2-987e-33a6da4d482e', 'Maja', 'Turner'),
-    ('be0e3ce9-5b4b-4e7a-b3e1-6ea140b0a507', 'Norbert', 'Piotrowski'),
-    ('6c16a93f-b21d-4e1c-8e54-2e69b32b1c0b', 'Alicja', 'Evans');
+    ('1', 'Jan', 'Kowalski'),
+    ('2', 'Anna', 'Nowak'),
+    ('3', 'Robert', 'Wiśniewski'),
+    ('4', 'Emilia', 'Dąbrowska'),
+    ('5', 'Michał', 'Lewandowski'),
+    ('6', 'Olga', 'Wójcik'),
+    ('7', 'Wojciech', 'Kowalczyk'),
+    ('8', 'Zofia', 'Kamińska'),
+    ('9', 'Jakub', 'Zieliński'),
+    ('10', 'Karolina', 'Szymańska'),
+    ('11', 'Bartłomiej', 'Woźniak'),
+    ('12', 'Anna', 'Kowal'),
+    ('13', 'Eryk', 'Harris'),
+    ('14', 'Izabela', 'Mazur'),
+    ('15', 'Mateusz', 'Nowacki'),
+    ('16', 'Amelia', 'Kowalewska'),
+    ('17', 'Filip', 'Wójcik'),
+    ('18', 'Maja', 'Turner'),
+    ('19', 'Norbert', 'Piotrowski'),
+    ('20', 'Alicja', 'Evans');
 
 
 INSERT INTO _specialization (specialization_id, name)
@@ -63,42 +63,57 @@ VALUES
 
 INSERT INTO doctor_specialization (doctor_id, specialization_id)
 VALUES
-    ('4c029e1e-755f-4a0a-8a6b-496f6817d58d', 1),
-    ('da6a6e0d-7574-4ab1-836b-2c3ff3b4eb7e', 2),
-    ('d67ef81a-0d8e-4c64-8df7-ff6d15c5a2fc', 3),
-    ('41d7b0fb-7a34-495d-b8e6-87032b25e5ee', 4),
-    ('f27e2dd3-cf98-47b0-bd7a-c99a181da5c3', 5),
-    ('7f5b8a65-0f5e-4fe9-9a34-e8ebba82d8d8', 6),
-    ('9de64b18-1c6f-4f91-b290-8eb152c35475', 7),
-    ('06cdd34c-3ff3-45f7-9aa5-d01c2fb42a9b', 8),
-    ('31e61f13-1a09-4319-8f7b-5f76dd01700f', 9),
-    ('9c4d5a88-0f4d-4a53-901e-d5fbb7752456', 10),
-    ('225ec5e0-f5b1-45e6-bbf7-8c6c090f842e', 11),
-    ('965702b9-0f50-471e-9df8-4a04a1f8e625', 1),
-    ('0dd75f99-3f3d-4cc5-80c1-2d53a33b8c4f', 2),
-    ('13fcd5d1-07b1-4a97-9b93-2d4983d60c3e', 3),
-    ('1d74b6ce-9a89-4d7f-9e29-2fcf9a46a3a2', 4),
-    ('2e3a6f1a-cf6c-46f1-85d3-fb148a5c9f8c', 5),
-    ('4c005f4b-77e2-4e6e-a1a7-0b818e8f7743', 6),
-    ('2425d3aa-fb4c-42d2-987e-33a6da4d482e', 7),
-    ('be0e3ce9-5b4b-4e7a-b3e1-6ea140b0a507', 8),
-    ('6c16a93f-b21d-4e1c-8e54-2e69b32b1c0b', 9);
+    ('1', 1),
+    ('2', 2),
+    ('3', 3),
+    ('4', 4),
+    ('5', 5),
+    ('6', 6),
+    ('7', 7),
+    ('8', 8),
+    ('9', 9),
+    ('10', 10),
+    ('11', 11),
+    ('12', 1),
+    ('13', 2),
+    ('14', 3),
+    ('15', 4),
+    ('16', 5),
+    ('17', 6),
+    ('18', 7),
+    ('19', 8),
+    ('20', 9);
 
 
-INSERT INTO _visit (visit_id, visit_date, duration, available, price)
+INSERT INTO _visit (visit_id, available, hour, price, visit_date, doctor_id, user_account_id)
 VALUES
-    ('6a670ca0-b682-11ec-9cb6-0242ac130003', '2023-11-16 10:00', 30, true, 50.0),
-    ('6a670e2e-b682-11ec-9cb6-0242ac130003', '2023-11-17 14:30', 45, true, 75.0),
-    ('6a671046-b682-11ec-9cb6-0242ac130003', '2023-11-18 11:15', 60, true, 100.0),
-    ('6a6711ba-b682-11ec-9cb6-0242ac130003', '2023-11-19 09:30', 30, true, 50.0),
-    ('6a6712b6-b682-11ec-9cb6-0242ac130003', '2023-11-20 16:45', 45, true, 75.0),
-    ('6a6713a6-b682-11ec-9cb6-0242ac130003', '2023-11-21 13:00', 60, true, 100.0),
-    ('6a671478-b682-11ec-9cb6-0242ac130003', '2023-11-22 10:30', 30, true, 50.0),
-    ('6a671546-b682-11ec-9cb6-0242ac130003', '2023-11-23 15:15', 45, true, 75.0),
-    ('6a671614-b682-11ec-9cb6-0242ac130003', '2023-11-24 12:00', 60, true, 100.0),
-    ('6a6716e2-b682-11ec-9cb6-0242ac130003', '2023-11-25 09:45', 30, true, 50.0),
-    ('6a6717b4-b682-11ec-9cb6-0242ac130003', '2023-11-26 17:30', 45, true, 75.0),
-    ('6a671882-b682-11ec-9cb6-0242ac130003', '2023-11-27 14:15', 60, true, 100.0),
-    ('6a67194e-b682-11ec-9cb6-0242ac130003', '2023-11-28 11:45', 30, true, 50.0),
-    ('6a671a1e-b682-11ec-9cb6-0242ac130003', '2023-11-29 16:00', 45, true, 75.0),
-    ('6a671aec-b682-11ec-9cb6-0242ac130003', '2023-11-30 12:45', 60, true, 100.0);
+    ('1', true, '10:00', 50.0, '2024-12-16 10:00', 1, null),
+    ('2', true, '14:30', 75.0, '2024-12-17 14:30', 2, null),
+    ('3', true, '11:15', 100.0, '2024-12-18 11:15', 3, null),
+    ('4', true, '09:30', 50.0, '2024-12-19 09:30', 4, null),
+    ('5', true, '16:45', 75.0, '2024-01-20 16:45', 5, null),
+    ('6', true, '13:00', 100.0, '2024-01-21 13:00', 6, null),
+    ('7', true, '10:30', 50.0, '2024-01-22 10:30', 7, null),
+    ('8', true, '15:15', 75.0, '2024-01-23 15:15', 8, null),
+    ('9', true, '12:00', 100.0, '2023-11-24 12:00', 9, null),
+    ('10', true, '09:45', 50.0, '2023-11-25 09:45', 10, null),
+    ('11', true, '17:30', 75.0, '2023-11-26 17:30', 1, null),
+    ('12', true, '14:15', 100.0, '2023-11-27 14:15', 2, null),
+    ('13', true, '11:45', 50.0, '2023-11-28 11:45', 3, null),
+    ('14', true, '16:00', 75.0, '2023-11-29 16:00', 4, null),
+    ('15', true, '12:45', 100.0, '2023-11-30 12:45', 5, null),
+    ('16', true, '12:00', 100.0, '2023-12-24'::date, 1, null),
+    ('17', true, '09:45', 50.0, '2023-12-24'::date, 2, null),
+    ('18', true, '17:30', 75.0, '2023-12-25'::date, 3, null),
+    ('19', true, '14:15', 100.0, '2023-12-26'::date, 4, null),
+    ('20', true, '11:45', 50.0, '2023-12-27'::date, 5, null),
+    ('21', true, '16:00', 75.0, '2023-12-28'::date, 6, null),
+    ('22', true, '12:45', 100.0, '2023-12-29'::date, 7, null),
+    ('23', true, '10:15', 50.0, '2023-12-30'::date, 8, null),
+    ('24', true, '14:45', 75.0, '2023-12-31'::date, 9, null),
+    ('25', true, '11:00', 100.0, '2024-01-01'::date, 10, null),
+    ('26', true, '15:30', 50.0, '2024-01-02'::date, 1, null),
+    ('27', true, '12:30', 75.0, '2024-01-03'::date, 2, null),
+    ('28', true, '09:00', 100.0, '2024-01-04'::date, 3, null),
+    ('29', true, '13:15', 50.0, '2024-01-05'::date, 4, null),
+    ('30', true, '10:30', 75.0, '2024-01-06'::date, 5, null);

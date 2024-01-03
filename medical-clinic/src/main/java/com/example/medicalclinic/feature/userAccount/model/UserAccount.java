@@ -1,8 +1,7 @@
 package com.example.medicalclinic.feature.userAccount.model;
 
 import com.example.medicalclinic.feature.user.model.User;
-import com.example.medicalclinic.feature.visit.model.Visit;
-import jakarta.persistence.CascadeType;
+import com.example.medicalclinic.feature.visits.model.Visit;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +11,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.List;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -26,7 +24,7 @@ public class UserAccount {
 
   @Id
   @Column(name = "user_id")
-  private UUID id;
+  private long id;
 
   @Column(name=" balance")
   private Double balance;
@@ -37,7 +35,7 @@ public class UserAccount {
   private User user;
 
 
-  @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "userAccount")
   private List<Visit> visits;
 
 }
