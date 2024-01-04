@@ -1,24 +1,34 @@
 INSERT INTO roles (id, name)
 VALUES
 
-(1, 'ROLE_USER'),
-(2, 'ROLE_DOCTOR'),
-(3, 'ROLE_NURSE');
+    (1, 'ROLE_USER'),
+    (2, 'ROLE_DOCTOR'),
+    (3, 'ROLE_NURSE');
 
 INSERT INTO users (id, username, first_name, last_name, email, password)
 VALUES
-    ('1', 'kusmi', 'Jan', 'Kowalski', 'jankowalski@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO');
+    ('1', 'kusmi', 'Jan', 'Kowalski', 'jankowalski@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO'),
+    ('2', 'kusmi2', 'Szymek', 'Kowa', 'jankowalski2@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO'),
+    ('3', 'lekarz', 'Robert', 'Wiśniewski', 'lekarz@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO'),
+    ('4', 'pielegniarka', 'Anna', 'Szymczyk', 'pielegniarka@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO');
 /*
+login:username
 Haslo: Haslo1234!
 */
 
 INSERT INTO user_roles (role_id, user_id)
 VALUES
-    (1,1);
+    (1,1),
+    (1,2),
+    (2,3),
+    (3,4);
 
 INSERT INTO user_account(user_id, balance)
 VALUES
-(1, 100);
+    (1, 100),
+    (2, 100),
+    (3, 100),
+    (4, 100);
 
 
 
@@ -84,36 +94,108 @@ VALUES
     ('19', 8),
     ('20', 9);
 
-
-INSERT INTO _visit (visit_id, available, hour, price, visit_date, doctor_id, user_account_id)
+INSERT INTO medical_clinic (medical_clinic_id, city, house_no, name, postal_code, street)
 VALUES
-    ('1', true, '10:00', 50.0, '2024-12-16 10:00', 1, null),
-    ('2', true, '14:30', 75.0, '2024-12-17 14:30', 2, null),
-    ('3', true, '11:15', 100.0, '2024-12-18 11:15', 3, null),
-    ('4', true, '09:30', 50.0, '2024-12-19 09:30', 4, null),
-    ('5', true, '16:45', 75.0, '2024-01-20 16:45', 5, null),
-    ('6', true, '13:00', 100.0, '2024-01-21 13:00', 6, null),
-    ('7', true, '10:30', 50.0, '2024-01-22 10:30', 7, null),
-    ('8', true, '15:15', 75.0, '2024-01-23 15:15', 8, null),
-    ('9', true, '12:00', 100.0, '2023-11-24 12:00', 9, null),
-    ('10', true, '09:45', 50.0, '2023-11-25 09:45', 10, null),
-    ('11', true, '17:30', 75.0, '2023-11-26 17:30', 1, null),
-    ('12', true, '14:15', 100.0, '2023-11-27 14:15', 2, null),
-    ('13', true, '11:45', 50.0, '2023-11-28 11:45', 3, null),
-    ('14', true, '16:00', 75.0, '2023-11-29 16:00', 4, null),
-    ('15', true, '12:45', 100.0, '2023-11-30 12:45', 5, null),
-    ('16', true, '12:00', 100.0, '2023-12-24'::date, 1, null),
-    ('17', true, '09:45', 50.0, '2023-12-24'::date, 2, null),
-    ('18', true, '17:30', 75.0, '2023-12-25'::date, 3, null),
-    ('19', true, '14:15', 100.0, '2023-12-26'::date, 4, null),
-    ('20', true, '11:45', 50.0, '2023-12-27'::date, 5, null),
-    ('21', true, '16:00', 75.0, '2023-12-28'::date, 6, null),
-    ('22', true, '12:45', 100.0, '2023-12-29'::date, 7, null),
-    ('23', true, '10:15', 50.0, '2023-12-30'::date, 8, null),
-    ('24', true, '14:45', 75.0, '2023-12-31'::date, 9, null),
-    ('25', true, '11:00', 100.0, '2024-01-01'::date, 10, null),
-    ('26', true, '15:30', 50.0, '2024-01-02'::date, 1, null),
-    ('27', true, '12:30', 75.0, '2024-01-03'::date, 2, null),
-    ('28', true, '09:00', 100.0, '2024-01-04'::date, 3, null),
-    ('29', true, '13:15', 50.0, '2024-01-05'::date, 4, null),
-    ('30', true, '10:30', 75.0, '2024-01-06'::date, 5, null);
+    ('1','Warszawa','125','Medical','04-100','Puławska'),
+    ('2','Warszawa','89','Przychodnia','04-123','Piękna'),
+    ('3','Puławy','17','Zdrowie','01-080','Krótka');
+
+INSERT INTO _visit (id, available, hour, price, visit_date, doctor_id, user_account_id,medical_clinic_id)
+VALUES
+    ('d7cec8c7-8545-4b0c-9a94-1100b65e1d8e', false, '10:00', 50.0, '2024-12-16 10:00', 3, 1, 1),
+    ('44fd03f8-9a86-4f35-be47-fe79bf4c58b4', false, '14:30', 75.0, '2024-12-17 14:30', 3, 1, 1),
+    ('f52fe66e-90ef-4bb5-a58f-d9c22a505bad', false, '11:15', 100.0, '2024-12-18 11:15', 3, 1, 1),
+    ('b947f415-f04c-4931-abd7-f729c94eef9f', false, '09:30', 50.0, '2024-12-19 09:30', 3, 1, 1),
+    ('21ff0507-affe-460d-a295-49949f47c674', false, '16:45', 75.0, '2024-01-20 16:45', 5, 1, 1),
+    ('fc80fb76-54ed-4ec4-aa23-d4debf7b6454', false, '13:00', 100.0, '2024-01-21 13:00', 6, 2, 1),
+    ('68c3385b-619d-462b-9a55-0d6a7e517fdb', false, '10:30', 50.0, '2024-01-22 10:30', 3, 2, 1),
+    ('312a72a9-d114-4db8-854e-9892cb166f4d', false, '15:15', 75.0, '2024-01-23 15:15', 3, 2, 1),
+    ('c46560ff-51c8-4b7e-b3a4-ac92fe81ca57', false, '12:00', 100.0, '2023-11-24 12:00', 9, 1, 1),
+    ('c60f9cdc-b88e-42ae-853b-1e258d9c0b5e', false, '09:45', 50.0, '2023-11-25 09:45', 10, 1, 2),
+    ('ce190c1c-328d-4341-9fdf-19e70d05e121', false, '17:30', 75.0, '2023-11-26 17:30', 1, 1, 2),
+    ('ad142669-21fe-412b-8a3d-90c995c35d1e', false, '14:15', 100.0, '2023-11-27 14:15', 3, 1, 2),
+    ('ae1cad58-3f97-4a9d-be41-f7a4078d40bb', false, '11:45', 50.0, '2023-11-28 11:45', 3, 1, 2),
+    ('cb03451c-45bf-49e5-be78-f8ab1e6d7e35', false, '16:00', 75.0, '2023-11-29 16:00', 3, 1, 2),
+    ('ade66e96-fdc7-4981-88d1-890c3feae35c', false, '12:45', 100.0, '2023-11-30 12:45', 5, 2, 2),
+    ('fc03cfca-a015-45ab-b7eb-e35b69ccdd41', false, '12:00', 100.0, '2023-12-24'::date, 1, 2, 2),
+    ('65b9c8cb-e112-45f6-a1b5-dc35d3301773', false, '09:45', 50.0, '2023-12-24'::date, 2, 2, 2),
+    ('e0fa1a3e-79ff-4c36-87bc-fe4fdb8222fb', false, '17:30', 75.0, '2023-12-25'::date, 3, 2, 2),
+    ('e4fbcaf2-fb5e-4d19-b0a0-8e799b094a9c', false, '14:15', 100.0, '2023-12-26'::date, 4, 1, 2),
+    ('73f7bccb-09d7-40cb-9d7f-97924ac82f39', false, '11:45', 50.0, '2023-12-27'::date, 5, 1, 2),
+    ('20191085-cff5-4213-9c1a-c505a1910daf', false, '16:00', 75.0, '2023-12-28'::date, 6, 1, 3),
+    ('8144f92c-264d-428c-b8a9-301df8e8048e', false, '12:45', 100.0, '2023-12-29'::date, 3, 2, 3),
+    ('1a55eafb-8e09-433d-b5a3-7ab4f51915b6', false, '10:15', 50.0, '2023-12-30'::date, 3, 2, 3),
+    ('13b75863-5f65-4dfd-af99-cc2c13c0b943', false, '14:45', 75.0, '2023-12-31'::date, 3, 2, 3),
+    ('52c9efab-c4dd-4ee4-bebc-26079685c1cf', true, '11:00', 100.0, '2024-01-01'::date, 3, 1, 3),
+    ('eeaf1558-ff5e-43a5-b7ac-ec16e7ca3e05', true, '15:30', 50.0, '2024-01-02'::date, 1, null, 3),
+    ('999900cf-31cc-4caf-be9f-6286ac997022', true, '12:30', 75.0, '2024-01-03'::date, 2, null, 3),
+    ('89ad4176-b370-467f-9c1c-3c43bed14c2b', true, '09:00', 100.0, '2024-01-04'::date, 3, null, 3),
+    ('f19770bb-1963-4a93-8c7e-9fec5358f03c', true, '13:15', 50.0, '2024-01-05'::date, 3, null, 3),
+    ('94662ac7-de6c-4976-9b2e-72531d4c45b0', true, '10:30', 75.0, '2024-01-06'::date, 5, null, 3);
+
+/*
+INSERT INTO _visit (id, available, hour, price, visit_date, doctor_id, user_account_id)
+VALUES
+    ('d7cec8c7-8545-4b0c-9a94-1100b65e1d8e', false, '10:00', 50.0, '2024-12-16 10:00', 3, 1),
+    ('44fd03f8-9a86-4f35-be47-fe79bf4c58b4', false, '14:30', 75.0, '2024-12-17 14:30', 3, 1),
+    ('f52fe66e-90ef-4bb5-a58f-d9c22a505bad', false, '11:15', 100.0, '2024-12-18 11:15', 3, 1),
+    ('b947f415-f04c-4931-abd7-f729c94eef9f', false, '09:30', 50.0, '2024-12-19 09:30', 3, 1),
+    ('21ff0507-affe-460d-a295-49949f47c674', false, '16:45', 75.0, '2024-01-20 16:45', 5, 1),
+    ('fc80fb76-54ed-4ec4-aa23-d4debf7b6454', false, '13:00', 100.0, '2024-01-21 13:00', 6, 2),
+    ('68c3385b-619d-462b-9a55-0d6a7e517fdb', false, '10:30', 50.0, '2024-01-22 10:30', 3, 2),
+    ('312a72a9-d114-4db8-854e-9892cb166f4d', false, '15:15', 75.0, '2024-01-23 15:15', 3, 2),
+    ('c46560ff-51c8-4b7e-b3a4-ac92fe81ca57', false, '12:00', 100.0, '2023-11-24 12:00', 9, 1),
+    ('c60f9cdc-b88e-42ae-853b-1e258d9c0b5e', false, '09:45', 50.0, '2023-11-25 09:45', 10, 1),
+    ('ce190c1c-328d-4341-9fdf-19e70d05e121', false, '17:30', 75.0, '2023-11-26 17:30', 1, 1),
+    ('ad142669-21fe-412b-8a3d-90c995c35d1e', false, '14:15', 100.0, '2023-11-27 14:15', 3, 1),
+    ('ae1cad58-3f97-4a9d-be41-f7a4078d40bb', false, '11:45', 50.0, '2023-11-28 11:45', 3, 1),
+    ('cb03451c-45bf-49e5-be78-f8ab1e6d7e35', false, '16:00', 75.0, '2023-11-29 16:00', 3, 1),
+    ('ade66e96-fdc7-4981-88d1-890c3feae35c', false, '12:45', 100.0, '2023-11-30 12:45', 5, 2),
+    ('fc03cfca-a015-45ab-b7eb-e35b69ccdd41', false, '12:00', 100.0, '2023-12-24'::date, 1, 2),
+    ('65b9c8cb-e112-45f6-a1b5-dc35d3301773', false, '09:45', 50.0, '2023-12-24'::date, 2, 2),
+    ('e0fa1a3e-79ff-4c36-87bc-fe4fdb8222fb', false, '17:30', 75.0, '2023-12-25'::date, 3, 2),
+    ('e4fbcaf2-fb5e-4d19-b0a0-8e799b094a9c', false, '14:15', 100.0, '2023-12-26'::date, 4, 1),
+    ('73f7bccb-09d7-40cb-9d7f-97924ac82f39', false, '11:45', 50.0, '2023-12-27'::date, 5, 1),
+    ('20191085-cff5-4213-9c1a-c505a1910daf', false, '16:00', 75.0, '2023-12-28'::date, 6, 1),
+    ('8144f92c-264d-428c-b8a9-301df8e8048e', false, '12:45', 100.0, '2023-12-29'::date, 3, 2),
+    ('1a55eafb-8e09-433d-b5a3-7ab4f51915b6', false, '10:15', 50.0, '2023-12-30'::date, 3, 2),
+    ('13b75863-5f65-4dfd-af99-cc2c13c0b943', false, '14:45', 75.0, '2023-12-31'::date, 3, 2),
+    ('52c9efab-c4dd-4ee4-bebc-26079685c1cf', true, '11:00', 100.0, '2024-01-01'::date, 3, 1),
+    ('eeaf1558-ff5e-43a5-b7ac-ec16e7ca3e05', true, '15:30', 50.0, '2024-01-02'::date, 1, null),
+    ('999900cf-31cc-4caf-be9f-6286ac997022', true, '12:30', 75.0, '2024-01-03'::date, 2, null),
+    ('89ad4176-b370-467f-9c1c-3c43bed14c2b', true, '09:00', 100.0, '2024-01-04'::date, 3, null),
+    ('f19770bb-1963-4a93-8c7e-9fec5358f03c', true, '13:15', 50.0, '2024-01-05'::date, 3, null),
+    ('94662ac7-de6c-4976-9b2e-72531d4c45b0', true, '10:30', 75.0, '2024-01-06'::date, 5, null);
+*/
+INSERT INTO _visit_details (id, description, medicine)
+VALUES
+    ('d7cec8c7-8545-4b0c-9a94-1100b65e1d8e',  '',''),
+    ('44fd03f8-9a86-4f35-be47-fe79bf4c58b4',  '',''),
+    ('f52fe66e-90ef-4bb5-a58f-d9c22a505bad',  '',''),
+    ('b947f415-f04c-4931-abd7-f729c94eef9f',  '',''),
+    ('21ff0507-affe-460d-a295-49949f47c674',  '',''),
+    ('fc80fb76-54ed-4ec4-aa23-d4debf7b6454',  '',''),
+    ('68c3385b-619d-462b-9a55-0d6a7e517fdb',  '',''),
+    ('312a72a9-d114-4db8-854e-9892cb166f4d',  '',''),
+    ('c46560ff-51c8-4b7e-b3a4-ac92fe81ca57',  '',''),
+    ('c60f9cdc-b88e-42ae-853b-1e258d9c0b5e',  '',''),
+    ('ce190c1c-328d-4341-9fdf-19e70d05e121',  '',''),
+    ('ad142669-21fe-412b-8a3d-90c995c35d1e',  '',''),
+    ('ae1cad58-3f97-4a9d-be41-f7a4078d40bb',  '',''),
+    ('cb03451c-45bf-49e5-be78-f8ab1e6d7e35',  '',''),
+    ('ade66e96-fdc7-4981-88d1-890c3feae35c',  '',''),
+    ('fc03cfca-a015-45ab-b7eb-e35b69ccdd41',  '',''),
+    ('65b9c8cb-e112-45f6-a1b5-dc35d3301773',  '',''),
+    ('e0fa1a3e-79ff-4c36-87bc-fe4fdb8222fb',  '',''),
+    ('e4fbcaf2-fb5e-4d19-b0a0-8e799b094a9c',  '',''),
+    ('73f7bccb-09d7-40cb-9d7f-97924ac82f39',  '',''),
+    ('20191085-cff5-4213-9c1a-c505a1910daf',  '',''),
+    ('8144f92c-264d-428c-b8a9-301df8e8048e',  '',''),
+    ('1a55eafb-8e09-433d-b5a3-7ab4f51915b6',  '',''),
+    ('13b75863-5f65-4dfd-af99-cc2c13c0b943',  '',''),
+    ('52c9efab-c4dd-4ee4-bebc-26079685c1cf',  '',''),
+    ('eeaf1558-ff5e-43a5-b7ac-ec16e7ca3e05',  '',''),
+    ('999900cf-31cc-4caf-be9f-6286ac997022',  '',''),
+    ('89ad4176-b370-467f-9c1c-3c43bed14c2b',  '',''),
+    ('f19770bb-1963-4a93-8c7e-9fec5358f03c',  '',''),
+    ('94662ac7-de6c-4976-9b2e-72531d4c45b0',  '','');

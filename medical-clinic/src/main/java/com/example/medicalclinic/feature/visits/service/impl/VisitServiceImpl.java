@@ -5,11 +5,13 @@ import com.example.medicalclinic.exception.VisitNotAvailableException;
 import com.example.medicalclinic.feature.doctor.model.Doctor;
 import com.example.medicalclinic.feature.doctor.persistence.DoctorRepository;
 import com.example.medicalclinic.feature.medicalClinic.model.MedicalClinic;
+import com.example.medicalclinic.feature.medicalClinic.model.MedicalClinicDto;
 import com.example.medicalclinic.feature.medicalClinic.persistence.MedicalClinicRepository;
 import com.example.medicalclinic.feature.specialization.model.Specialization;
 import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.persistence.UserRepository;
 import com.example.medicalclinic.feature.userAccount.model.UserAccount;
+import com.example.medicalclinic.feature.visitDetails.model.VisitDetails;
 import com.example.medicalclinic.feature.visits.model.HourDTO;
 import com.example.medicalclinic.feature.visits.model.Visit;
 import com.example.medicalclinic.feature.visits.model.VisitDTO;
@@ -124,6 +126,7 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
         hours.add(hourDto);
 
         VisitDTO dto = new VisitDTO();
+        dto.setVisitId(currentVisit.getId());
         dto.setSpecialization(specializationName);
         dto.setDoctorId(currentVisit.getDoctor().getId());
         dto.setDoctorName(currentVisit.getDoctor().getName());
@@ -206,6 +209,10 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
       MedicalClinic medicalClinic = medicalClinicRepository.findById(clinicId)
           .orElseThrow(() -> new EntityNotFoundException("Clinic not found"));
 
+      VisitDetails visitDetails = new VisitDetails();
+          visitDetails.setDescription("");
+          visitDetails.setMedicines("");
+
       if (isDoctorAvailable(doctor, visitDate, hours)) {
         Visit visit = new Visit();
         visit.setVisitDate(visitDate);
@@ -214,7 +221,8 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
         visit.setHours(hours);
         visit.setDoctor(doctor);
         visit.setMedicalClinic(medicalClinic);
-
+        visit.setVisitDetails(visitDetails);
+        visitDetails.setVisit(visit);
         visitRepository.save(visit);
       } else {
         throw new RuntimeException("Doctor is not available at the specified date and hour");
@@ -239,11 +247,24 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
         .map(Specialization::getName)
         .collect(Collectors.joining(", "));
 
+    MedicalClinic clinic = medicalClinicRepository.findById(visit.getMedicalClinic().getId())
+        .orElseThrow(() -> new EntityNotFoundException("Clinic not found"));
+
     List<HourDTO> hours = new ArrayList<>();
     HourDTO hourDto = new HourDTO();
     hourDto.setVisitId(visit.getId());
     hourDto.setHour(visit.getHours());
     hours.add(hourDto);
+
+
+    MedicalClinicDto clinicDto = new MedicalClinicDto();
+    clinicDto.setId(clinic.getId());
+    clinicDto.setName(clinic.getName());
+    clinicDto.setStreet(clinic.getStreet());
+    clinicDto.setCity(clinic.getCity());
+    clinicDto.setPostalCode(clinic.getPostalCode());
+    clinicDto.setFlatNo(clinic.getFlatNo());
+    clinicDto.setHouseNo(clinic.getHouseNo());
 
     VisitDTO dto = new VisitDTO();
     dto.setVisitId(visit.getId());
@@ -254,23 +275,13 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
     dto.setDate(new SimpleDateFormat("yyyy-MM-dd").format(visit.getVisitDate()));
     dto.setHour(visit.getHours());
     dto.setHours(hours);
+    dto.setMedicalClinic(clinicDto);
 
     UserAccount userAccount = visit.getUserAccount();
     if (userAccount != null) {
       dto.setUserId(userAccount.getId());
       dto.setUserName(userAccount.getUser().getFirstname());
       dto.setUserSurname(userAccount.getUser().getLastname());
-    }
-
-
-    MedicalClinic medicalClinic = visit.getMedicalClinic();
-    if (medicalClinic != null) {
-      dto.setMedicalClinicId(medicalClinic.getId());
-      dto.setMedicalClinicName(medicalClinic.getName()); // Replace with actual field names
-      dto.setMedicalClinicStreet(medicalClinic.getStreet());
-      dto.setMedicalClinicHouseNo(medicalClinic.getHouseNo());
-      dto.setMedicalClinicFlatNo(medicalClinic.getFlatNo());
-      dto.setMedicalClinicPostalCode(medicalClinic.getPostalCode());
     }
     return dto;
   }

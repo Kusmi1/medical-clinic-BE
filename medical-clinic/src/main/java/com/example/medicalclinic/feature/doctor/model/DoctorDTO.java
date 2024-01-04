@@ -19,7 +19,6 @@ public class DoctorDTO {
         doctorInfoDTO.setId(doctor.getId());
         doctorInfoDTO.setName(doctor.getName());
         doctorInfoDTO.setSurname(doctor.getSurname());
-        // Additional fields...
         return doctorInfoDTO;
     }
 }
