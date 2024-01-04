@@ -4,6 +4,7 @@ import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.model.UserDto;
 import com.example.medicalclinic.feature.user.persistence.UserRepository;
 import com.example.medicalclinic.feature.user.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +26,19 @@ public class UserServiceImpl implements UserService {
         .map(this::convertToDto)
         .collect(Collectors.toList());
   }
+  public UserDto getUserDtoById(Long userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
 
-  private UserDto convertToDto(User user){
+    return convertToDto(user);
+  }
+
+  private UserDto convertToDto(User user) {
     UserDto userDto = new UserDto();
     userDto.setId(user.getId());
     userDto.setName(user.getFirstname());
     userDto.setSurname(user.getLastname());
+
     return userDto;
   }
 }
