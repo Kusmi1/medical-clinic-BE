@@ -32,8 +32,8 @@ public class VisitDTO {
   public void setUserInformation(UserAccount userAccount) {
     if (userAccount != null) {
       this.userId = userAccount.getId();
-      this.userName = userAccount.getUser().getFirstname();
-      this.userSurname = userAccount.getUser().getLastname();
+      this.userName = userAccount.getUser().getFirstName();
+      this.userSurname = userAccount.getUser().getLastName();
     }
   }
 }

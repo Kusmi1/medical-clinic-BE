@@ -21,7 +21,8 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       "(:userId IS NULL OR v.userAccount.user.id = :userId) AND " +
       "(:doctorId IS NULL OR v.doctor.id = :doctorId) AND " +
       "(COALESCE(:userId, :doctorId) IS NOT NULL OR v.available = false) AND " +
-      "v.visitDate > :currentDate")
+      "v.visitDate > :currentDate " +
+      "ORDER BY v.visitDate")
   List<Visit> findAllFutureVisits(
       @Param("userId") Optional<Long> userId,
       @Param("doctorId") Optional<Long> doctorId,
@@ -29,22 +30,29 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
   );
 
   @Query("SELECT v FROM Visit v WHERE " +
-
       " v.available = false AND " +
-      "v.visitDate > :currentDate")
+      "v.visitDate > :currentDate " +
+      "ORDER BY v.visitDate")
   List<Visit> findAllFutureVisitsbyEmptyValue(
-
       @Param("currentDate") Date currentDate
   );
 
   @Query("SELECT v FROM Visit v " +
       "WHERE :specializationName IN (SELECT s.name FROM v.doctor.specializations s) " +
       "AND v.available = true " +
-      "AND v.visitDate >= DATE(:visitDate)" +
-      "ORDER BY v.visitDate")
+      "AND v.visitDate = date(:visitDate) " +
+      "ORDER BY  v.visitDate")
   List<Visit> findAvailableVisitsBySpecializationOrderedByDate(
       @Param("specializationName")   String specializationName,
       @Param("visitDate") Optional<Date> visitDate);
+
+  @Query("SELECT v FROM Visit v " +
+      "WHERE :specializationName IN (SELECT s.name FROM v.doctor.specializations s) " +
+      "AND v.available = true " +
+      "AND  v.visitDate  > Date(CURRENT_DATE ) " +
+      "ORDER BY v.visitDate")
+  List<Visit> findAvailableVisitsBySpecializationOrderedByCurrentDate(
+      @Param("specializationName") String specializationName);
 
   Optional<Visit> findByDoctorAndVisitDateAndHours(Doctor doctor, Date visitDate, String hours);
 }

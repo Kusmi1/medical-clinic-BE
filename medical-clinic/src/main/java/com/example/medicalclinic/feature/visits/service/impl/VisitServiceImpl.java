@@ -20,6 +20,7 @@ import com.example.medicalclinic.feature.visits.service.VisitService;
 import jakarta.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +66,7 @@ public class VisitServiceImpl implements VisitService {
     if (pastBookedVisits.isEmpty()) {
       throw new EmptyListException("No past booked visits found for the user.");
     }
+    pastBookedVisits.sort((v1, v2) -> v2.getVisitDate().compareTo(v1.getVisitDate()));
     return pastBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
   }
 
@@ -74,6 +76,8 @@ public class VisitServiceImpl implements VisitService {
     if (futureBookedVisits.isEmpty()) {
       throw new EmptyListException("No future booked visits found for the user.");
     }
+    futureBookedVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
+
     return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
   }
 
@@ -84,36 +88,47 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
   if (!visitRepository.findAllFutureVisits(userId, doctorId,
       new Date()).isEmpty()) {
     futureBookedVisits = visitRepository.findAllFutureVisits(userId, doctorId,  new Date());
+    futureBookedVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
     return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
-
   }
+
     if (userId.isPresent() && visitRepository.findAllFutureVisits(userId, null, new Date())
         .isEmpty()) {
       futureBookedVisits = visitRepository.findAllFutureVisits(null, doctorId,
           new Date());
+      futureBookedVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
       return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
-
     }
+
    if  (doctorId.isPresent() && visitRepository.findAllFutureVisits(null, doctorId, new Date())
       .isEmpty()) {
     futureBookedVisits=visitRepository.findAllFutureVisits(userId, null,
         new Date());
-     }else {
+     futureBookedVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
+   }else {
       return visitRepository.findAllFutureVisitsbyEmptyValue(new Date())
           .stream().map(this::convertToVisitDTO).collect(Collectors.toList());
-
-
   }
-
   return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
 }
+
+
   public List<VisitDTO> getAvailableVisitsBySpecialization(String specializationName, Optional<Date> choosenDate) {
+    List<Visit> availableVisits;
+
     if (choosenDate.isEmpty()) {
-      choosenDate = Optional.of(new Date());
+      System.out.println("chosenDate inside if "+choosenDate );
+      choosenDate = Optional.ofNullable(null);
+      availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByCurrentDate(specializationName);
+      availableVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
+    }
+    else {
+      availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByDate(specializationName, choosenDate);
     }
 
-    List<Visit> availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByDate(specializationName, choosenDate);
-    Map<String, VisitDTO> uniqueVisitsMap = new HashMap<>();
+      System.out.println("chosenDate "+choosenDate );
+    System.out.println("chosenDate "+choosenDate );
+     Map<String, VisitDTO> uniqueVisitsMap = new HashMap<>();
 
     for (Visit currentVisit : availableVisits) {
       String key = currentVisit.getDoctor().getId() + "_" + currentVisit.getVisitDate();
@@ -145,7 +160,18 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
         existingVisitDTO.getHours().add(hourDto);
       }
     }
- return new ArrayList<>(uniqueVisitsMap.values());
+
+    List<VisitDTO> sortedVisits = new ArrayList<>(uniqueVisitsMap.values());
+    sortedVisits.sort((dto1, dto2) -> {
+      int dateCompare = dto1.getDate().compareTo(dto2.getDate());
+      if (dateCompare != 0) {
+        return dateCompare;
+      } else {
+        return dto1.getHours().get(0).getHour().compareTo(dto2.getHours().get(0).getHour());
+      }
+    });
+
+    return sortedVisits;
   }
 
   public void bookVisit (UUID visitId, Long userId) {
@@ -198,7 +224,6 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
     Visit visit = visitRepository.findById(visitId)
         .orElseThrow(() -> new IllegalArgumentException("Visit not found"));
       return convertToVisitDTO(visit);
-
   }
 
   public void addVisit(Date visitDate, Long doctorId, String hours, int price, Long clinicId) {
@@ -280,8 +305,8 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
     UserAccount userAccount = visit.getUserAccount();
     if (userAccount != null) {
       dto.setUserId(userAccount.getId());
-      dto.setUserName(userAccount.getUser().getFirstname());
-      dto.setUserSurname(userAccount.getUser().getLastname());
+      dto.setUserName(userAccount.getUser().getFirstName());
+      dto.setUserSurname(userAccount.getUser().getLastName());
     }
     return dto;
   }

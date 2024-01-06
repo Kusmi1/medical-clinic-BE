@@ -24,7 +24,19 @@ public class SignupRequest {
   @Email
   private String email;
 
+  @NotBlank
+  @Size(max = 11)
+  private String pesel;
+
   private Set<String> role;
+
+  public String getPesel() {
+    return pesel;
+  }
+
+  public void setPesel(String pesel) {
+    this.pesel = pesel;
+  }
 
   @NotBlank
   @Size(min = 6, max = 40)
