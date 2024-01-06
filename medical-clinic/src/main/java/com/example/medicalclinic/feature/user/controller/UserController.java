@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,5 +35,11 @@ public class UserController {
   public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
     UserDto userDto = userService.getUserDtoById(userId);
     return ResponseEntity.ok(userDto);
+  }
+
+  @PutMapping("/add/{userId}")
+  public ResponseEntity<Object> updateUser(@PathVariable Long userId, @RequestBody UserDto userDto){
+    userService.updateUserData(userId,userDto);
+    return ResponseEntity.ok().build();
   }
 }

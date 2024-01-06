@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -81,7 +82,8 @@ public class AuthController {
     }
 
     User user = new User(signUpRequest.getFirstName(),signUpRequest.getSecondName(),signUpRequest.getLastName(),
-        signUpRequest.getUserName(), signUpRequest.getEmail(),
+        signUpRequest.getUserName(), signUpRequest.getEmail(),signUpRequest.getPesel(),
+
         encoder.encode(signUpRequest.getPassword()));
 
     Set<String> strRoles = signUpRequest.getRole();

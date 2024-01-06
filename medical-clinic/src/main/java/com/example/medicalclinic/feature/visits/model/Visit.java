@@ -22,6 +22,8 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
@@ -46,6 +48,7 @@ public class Visit {
 
   @JsonFormat(pattern = "yyyy-MM-dd")
   @Column(name = "visitDate")
+  @Temporal(TemporalType.DATE)
   private Date visitDate;
 
 

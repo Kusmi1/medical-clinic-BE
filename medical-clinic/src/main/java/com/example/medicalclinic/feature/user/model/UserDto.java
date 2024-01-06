@@ -1,5 +1,6 @@
 package com.example.medicalclinic.feature.user.model;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,12 @@ import lombok.Setter;
 @Setter
 @Getter
 public class UserDto {
-  Long id;
-  String name;
-  String surname;
+  private Long id;
+  private String name;
+  private String secondName;
+  private String lastname;
+  private String userName;
+  private String email;
+  private String pesel;
+  private String password;
 }
