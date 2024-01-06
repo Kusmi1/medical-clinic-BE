@@ -5,12 +5,12 @@ VALUES
     (2, 'ROLE_DOCTOR'),
     (3, 'ROLE_NURSE');
 
-INSERT INTO users (id, username, first_name, last_name, email, password)
+INSERT INTO users (id, username, first_name, last_name, email, password, pesel)
 VALUES
-    ('1', 'kusmi', 'Jan', 'Kowalski', 'jankowalski@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO'),
-    ('2', 'kusmi2', 'Szymek', 'Kowa', 'jankowalski2@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO'),
-    ('3', 'lekarz', 'Robert', 'Wiśniewski', 'lekarz@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO'),
-    ('4', 'pielegniarka', 'Anna', 'Szymczyk', 'pielegniarka@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO');
+    ('1', 'kusmi', 'Jan', 'Kowalski', 'jankowalski@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO', '9801234568'),
+    ('2', 'kusmi2', 'Szymek', 'Kowa', 'jankowalski2@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO' '9701284568'),
+    ('3', 'lekarz', 'Robert', 'Wiśniewski', 'lekarz@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO' 9908234768),
+    ('4', 'pielegniarka', 'Anna', 'Szymczyk', 'pielegniarka@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO'9501234778);
 /*
 login:username
 Haslo: Haslo1234!

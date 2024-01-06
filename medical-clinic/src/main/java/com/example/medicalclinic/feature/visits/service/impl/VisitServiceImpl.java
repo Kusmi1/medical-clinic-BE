@@ -117,7 +117,7 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
     List<Visit> availableVisits;
 
     if (choosenDate.isEmpty()) {
-      System.out.println("chosenDate inside if "+choosenDate );
+
       choosenDate = Optional.ofNullable(null);
       availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByCurrentDate(specializationName);
       availableVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
@@ -126,8 +126,6 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
       availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByDate(specializationName, choosenDate);
     }
 
-      System.out.println("chosenDate "+choosenDate );
-    System.out.println("chosenDate "+choosenDate );
      Map<String, VisitDTO> uniqueVisitsMap = new HashMap<>();
 
     for (Visit currentVisit : availableVisits) {
@@ -178,13 +176,11 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
     try {
       Visit visit = visitRepository.findById(visitId)
           .orElseThrow(() -> {
-            System.out.println("Visit not found for ID: " + visitId);
             return new IllegalArgumentException("Visit not found");
           });
 
       User user = userRepository.findById(userId)
           .orElseThrow(() -> {
-            System.out.println("User not found for ID: " + userId);
             return new IllegalArgumentException("User not found");
           });
 
