@@ -1,5 +1,6 @@
 package com.example.medicalclinic.feature.visits.service.impl;
 
+import com.example.medicalclinic.exception.CustomNotFoundException;
 import com.example.medicalclinic.exception.EmptyListException;
 import com.example.medicalclinic.exception.VisitNotAvailableException;
 import com.example.medicalclinic.feature.doctor.model.Doctor;
@@ -20,6 +21,7 @@ import com.example.medicalclinic.feature.visits.service.VisitService;
 import jakarta.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,95 +40,94 @@ public class VisitServiceImpl implements VisitService {
   private VisitRepository visitRepository;
   private UserRepository userRepository;
   private DoctorRepository doctorRepository;
-  private MedicalClinicRepository medicalClinicRepository ;
+  private MedicalClinicRepository medicalClinicRepository;
 
-  public VisitServiceImpl(UserRepository userRepository, VisitRepository visitRepository,DoctorRepository doctorRepository,MedicalClinicRepository medicalClinicRepository) {
+  public VisitServiceImpl(UserRepository userRepository, VisitRepository visitRepository,
+      DoctorRepository doctorRepository, MedicalClinicRepository medicalClinicRepository) {
     this.visitRepository = visitRepository;
     this.userRepository = userRepository;
     this.doctorRepository = doctorRepository;
-    this.medicalClinicRepository=medicalClinicRepository;
+    this.medicalClinicRepository = medicalClinicRepository;
   }
+
   public List<Visit> findAllVisits() {
     return visitRepository.findAll();
   }
 
-  public List<VisitDTO> getAllVisitsForUser(Long userId) {
+  public List<VisitDTO> getAllVisitsForUser(UUID userId) {
     List<Visit> visits = visitRepository.findByUserAccountId(userId);
     return visits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
   }
 
-  public List<VisitDTO> getAllVisitsForDoctor(Long userId) {
-    List<Visit> visits = visitRepository.findByUserAccountId(userId);
-    return visits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
-  }
+  public List<VisitDTO> getPastBookedVisitsForUser(UUID userId) {
 
-  public List<VisitDTO> getPastBookedVisitsForUser(Long userId) {
-
-    List<Visit> pastBookedVisits = visitRepository.findByUserAccountIdAndAvailableAndVisitDateBefore(userId, false, new Date());
+    List<Visit> pastBookedVisits = visitRepository.findByUserAccountIdAndAvailableAndVisitDateBefore(
+        userId, false, new Date());
     if (pastBookedVisits.isEmpty()) {
-      throw new EmptyListException("No past booked visits found for the user.");
+      return Collections.emptyList();
     }
     pastBookedVisits.sort((v1, v2) -> v2.getVisitDate().compareTo(v1.getVisitDate()));
     return pastBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
   }
 
-  public List<VisitDTO> getFutureBookedVisitsForUser(Long userId) {
-    List<Visit> futureBookedVisits = visitRepository.findByUserAccountIdAndAvailableAndVisitDateAfter(userId, false, new Date());
-
+  public List<VisitDTO> getFutureBookedVisitsForUser(UUID userId) {
+    List<Visit> futureBookedVisits = visitRepository.findByUserAccountIdAndAvailableAndVisitDateAfter(
+        userId, false, new Date());
     if (futureBookedVisits.isEmpty()) {
-      throw new EmptyListException("No future booked visits found for the user.");
-    }
-    futureBookedVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
+      return Collections.emptyList();}
 
-    return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
-  }
-
-public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<Long> doctorId) {
-  List<Visit> futureBookedVisits;
-
-
-  if (!visitRepository.findAllFutureVisits(userId, doctorId,
-      new Date()).isEmpty()) {
-    futureBookedVisits = visitRepository.findAllFutureVisits(userId, doctorId,  new Date());
     futureBookedVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
     return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
   }
 
-    if (userId.isPresent() && visitRepository.findAllFutureVisits(userId, null, new Date())
-        .isEmpty()) {
-      futureBookedVisits = visitRepository.findAllFutureVisits(null, doctorId,
-          new Date());
-      futureBookedVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
+
+
+    public List<VisitDTO> getAllFutureBookedVisits(Optional<UUID> userId, Optional<UUID> doctorId) {
+      System.out.println("userId is present: " + userId.isPresent() + ", doctorId is present: " + doctorId.isPresent());
+      List<Visit> futureBookedVisits=new ArrayList<>();
+
+      if (doctorId.isPresent() && userId.isPresent()) {
+        futureBookedVisits = visitRepository.findAllFutureVisits(
+            userId.orElse(null), doctorId.orElse(null), new Date());
+        System.out.println("userId: " + userId + ", doctorId: " + doctorId+"futureBookedVisits is empty "+futureBookedVisits.isEmpty());
+      } else if (futureBookedVisits.isEmpty()&& !userId.isPresent() && doctorId.isPresent()) {
+        futureBookedVisits = visitRepository.findByDoctorIdAndAvailableAndVisitDateAfter(
+            doctorId.orElse(null), false, new Date());
+        System.out.println("userId: null, doctorId: " + doctorId+"futureBookedVisits is empty2 "+futureBookedVisits.isEmpty());
+      } else if (futureBookedVisits.isEmpty()&&userId.isPresent() && !doctorId.isPresent()) {
+        futureBookedVisits = visitRepository.findByUserAccountIdAndAvailableAndVisitDateAfter(
+            userId.orElse(null), false, new Date());
+        System.out.println("userId: " + userId + ", doctorId: null"+"futureBookedVisits is empty3 "+futureBookedVisits.isEmpty());
+      } else {
+        futureBookedVisits = visitRepository.findAllFutureVisitsbyEmptyValue(new Date());
+      }
+
+      if (futureBookedVisits.isEmpty()) {
+        return Collections.emptyList();
+//        throw new CustomNotFoundException("No future visits found for the given criteria.");
+      }
+
       return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
     }
 
-   if  (doctorId.isPresent() && visitRepository.findAllFutureVisits(null, doctorId, new Date())
-      .isEmpty()) {
-    futureBookedVisits=visitRepository.findAllFutureVisits(userId, null,
-        new Date());
-     futureBookedVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
-   }else {
-      return visitRepository.findAllFutureVisitsbyEmptyValue(new Date())
-          .stream().map(this::convertToVisitDTO).collect(Collectors.toList());
-  }
-  return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
-}
+///////////////////////////////////////
 
-
-  public List<VisitDTO> getAvailableVisitsBySpecialization(String specializationName, Optional<Date> choosenDate) {
+  public List<VisitDTO> getAvailableVisitsBySpecialization(String specializationName,
+      Optional<Date> choosenDate) {
     List<Visit> availableVisits;
 
     if (choosenDate.isEmpty()) {
 
       choosenDate = Optional.ofNullable(null);
-      availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByCurrentDate(specializationName);
+      availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByCurrentDate(
+          specializationName);
       availableVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
-    }
-    else {
-      availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByDate(specializationName, choosenDate);
+    } else {
+      availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByDate(
+          specializationName, choosenDate);
     }
 
-     Map<String, VisitDTO> uniqueVisitsMap = new HashMap<>();
+    Map<String, VisitDTO> uniqueVisitsMap = new HashMap<>();
 
     for (Visit currentVisit : availableVisits) {
       String key = currentVisit.getDoctor().getId() + "_" + currentVisit.getVisitDate();
@@ -172,7 +173,7 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
     return sortedVisits;
   }
 
-  public void bookVisit (UUID visitId, Long userId) {
+  public void bookVisit(UUID visitId, UUID userId) {
     try {
       Visit visit = visitRepository.findById(visitId)
           .orElseThrow(() -> {
@@ -197,21 +198,21 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
       throw new VisitNotAvailableException("Visit not found");
     }
   }
+
   public void deleteVisit(UUID visitId) throws NotFoundException {
     try {
-    Visit visit = visitRepository.findById(visitId)
-        .orElseThrow(() -> new NotFoundException());
+      Visit visit = visitRepository.findById(visitId)
+          .orElseThrow(() -> new NotFoundException());
 
-    if (!visit.getAvailable() && visit.getUserAccount() != null) {
-    visit.setAvailable(true);
-    visit.setUserAccount(null);
-    visitRepository.save(visit);
+      if (!visit.getAvailable() && visit.getUserAccount() != null) {
+        visit.setAvailable(true);
+        visit.setUserAccount(null);
+        visitRepository.save(visit);
 
-  } else {
-    throw new VisitNotAvailableException("Visit is not assigned.");
-  }
-    }
-    catch (EntityNotFoundException e) {
+      } else {
+        throw new VisitNotAvailableException("Visit is not assigned.");
+      }
+    } catch (EntityNotFoundException e) {
       throw new VisitNotAvailableException("Visit not found");
     }
   }
@@ -219,10 +220,10 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
   public VisitDTO getVisitById(UUID visitId) {
     Visit visit = visitRepository.findById(visitId)
         .orElseThrow(() -> new IllegalArgumentException("Visit not found"));
-      return convertToVisitDTO(visit);
+    return convertToVisitDTO(visit);
   }
 
-  public void addVisit(Date visitDate, Long doctorId, String hours, int price, Long clinicId) {
+  public void addVisit(Date visitDate, UUID doctorId, String hours, int price, Long clinicId) {
     try {
       Doctor doctor = doctorRepository.findById(doctorId)
           .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
@@ -231,8 +232,8 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
           .orElseThrow(() -> new EntityNotFoundException("Clinic not found"));
 
       VisitDetails visitDetails = new VisitDetails();
-          visitDetails.setDescription("");
-          visitDetails.setMedicines("");
+      visitDetails.setDescription("");
+      visitDetails.setMedicines("");
 
       if (isDoctorAvailable(doctor, visitDate, hours)) {
         Visit visit = new Visit();
@@ -258,7 +259,8 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
   }
 
   private boolean isDoctorAvailable(Doctor doctor, Date visitDate, String hours) {
-    Optional<Visit> existingVisit = visitRepository.findByDoctorAndVisitDateAndHours(doctor, visitDate, hours);
+    Optional<Visit> existingVisit = visitRepository.findByDoctorAndVisitDateAndHours(doctor,
+        visitDate, hours);
     return existingVisit.isEmpty();
   }
 
@@ -276,7 +278,6 @@ public List<VisitDTO> getAllFutureBookedVisits(Optional<Long> userId, Optional<L
     hourDto.setVisitId(visit.getId());
     hourDto.setHour(visit.getHours());
     hours.add(hourDto);
-
 
     MedicalClinicDto clinicDto = new MedicalClinicDto();
     clinicDto.setId(clinic.getId());

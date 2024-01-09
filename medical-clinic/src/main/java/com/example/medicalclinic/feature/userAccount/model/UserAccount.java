@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -24,7 +25,7 @@ public class UserAccount {
 
   @Id
   @Column(name = "user_id")
-  private long id;
+  private UUID id;
 
   @Column(name=" balance")
   private Double balance;

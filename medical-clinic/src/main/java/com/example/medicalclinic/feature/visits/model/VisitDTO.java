@@ -17,10 +17,10 @@ import lombok.Setter;
 public class VisitDTO {
   private UUID visitId;
   private String specialization;
-  private Long doctorId;
+  private UUID doctorId;
   private String doctorName;
   private String doctorSurname;
-  private Long userId;
+  private UUID userId;
   private String userName;
   private String userSurname;
   private String date;

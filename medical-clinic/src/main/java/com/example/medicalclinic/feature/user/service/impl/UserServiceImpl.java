@@ -1,12 +1,24 @@
 package com.example.medicalclinic.feature.user.service.impl;
 
+import com.example.medicalclinic.feature.doctor.model.Doctor;
+import com.example.medicalclinic.feature.doctor.persistence.DoctorRepository;
+import com.example.medicalclinic.feature.role.model.ERole;
+import com.example.medicalclinic.feature.role.model.Role;
+import com.example.medicalclinic.feature.role.persistence.RoleRepository;
+import com.example.medicalclinic.feature.specialization.model.Specialization;
 import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.model.UserDto;
+import com.example.medicalclinic.feature.user.model.UserTestDto;
 import com.example.medicalclinic.feature.user.persistence.UserRepository;
 import com.example.medicalclinic.feature.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -23,6 +35,12 @@ public class UserServiceImpl implements UserService {
   PasswordEncoder encoder;
 
   @Autowired
+  private DoctorRepository doctorRepository;
+
+  @Autowired
+  private RoleRepository roleRepository;
+
+  @Autowired
   public UserServiceImpl(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
@@ -34,7 +52,7 @@ public class UserServiceImpl implements UserService {
         .collect(Collectors.toList());
   }
 
-  public UserDto getUserDtoById(Long userId) {
+  public UserDto getUserDtoById(UUID userId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
 
@@ -42,10 +60,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Transactional
-  public void updateUserData(Long userId, UserDto userDto) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//    User user = (User) authentication.getPrincipal();
-
+  public void updateUserData(UUID userId, UserDto userDto) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
     user.setFirstName(userDto.getName());
@@ -56,6 +71,39 @@ public class UserServiceImpl implements UserService {
   }
 
 
+  public void changeUserRoleAndSpecialization(UUID userId, ERole newRole, Set<Specialization> specializations) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+    Role roleEntity = roleRepository.findByName(newRole)
+        .orElseThrow(() -> new RuntimeException("Role not found"));
+
+    Set<Role> roles = new HashSet<>();
+    roles.add(roleEntity);
+    user.setRoles(roles);
+
+    if (newRole == ERole.ROLE_DOCTOR) {
+      Doctor doctor = doctorRepository.findById(userId).orElse(new Doctor());
+      doctor.setId(userId);
+      doctor.setName(user.getFirstName());
+      doctor.setSurname(user.getLastName());
+      doctor.setSpecializations(specializations != null ? specializations : new HashSet<>());
+
+      doctorRepository.save(doctor);
+    }
+    userRepository.save(user);
+  }
+
+
+public List<UserDto> getUsersWithDoctorAndNurseRoles() {
+  List<ERole> roleNames = Arrays.asList(ERole.ROLE_USER, ERole.ROLE_NURSE);
+
+  List<User> users= userRepository.findAllUsersByRoles_NameIn(roleNames);
+
+  return users.stream()
+      .map(this::convertToDto)
+      .collect(Collectors.toList());
+}
   private UserDto convertToDto(User user) {
     UserDto userDto = new UserDto();
     userDto.setId(user.getId());
@@ -68,4 +116,5 @@ public class UserServiceImpl implements UserService {
 
     return userDto;
   }
+
 }

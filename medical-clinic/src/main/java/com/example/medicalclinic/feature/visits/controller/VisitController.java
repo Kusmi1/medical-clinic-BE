@@ -6,6 +6,7 @@ import com.example.medicalclinic.feature.visits.model.Visit;
 import com.example.medicalclinic.feature.visits.model.VisitDTO;
 import com.example.medicalclinic.feature.visits.service.impl.VisitServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -45,60 +46,56 @@ public class VisitController {
   }
 
   @GetMapping("/user/{userId}")
-  public ResponseEntity<List<VisitDTO>> getVisitsForUser(@PathVariable Long userId) {
+  public ResponseEntity<List<VisitDTO>> getVisitsForUser(@PathVariable UUID userId) {
     List<VisitDTO> visits = visitService.getAllVisitsForUser(userId);
     return ResponseEntity.ok(visits);
   }
 
 
   @GetMapping("/past-visit/user/{userId}")
-  public ResponseEntity<?> getPastBookedVisits(@PathVariable Long userId) {
+  public ResponseEntity<List<VisitDTO>>  getPastBookedVisits(@PathVariable UUID userId) {
     try {
       List<VisitDTO> pastVisits = visitService.getPastBookedVisitsForUser(userId);
 
-      if (pastVisits.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("No past visits found for the user with ID: " + userId);
-      }
 
       return ResponseEntity.ok(pastVisits);
     } catch (Exception e) {
-
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("An error occurred while processing the request.");
+          .body(Collections.emptyList());
     }
   }
 
   @GetMapping("/future-visit/user/{userId}")
-  public ResponseEntity<?> getFutureBookedVisits(@PathVariable Long userId) {
+  public ResponseEntity<List<VisitDTO>> getFutureBookedVisits(@PathVariable UUID userId) {
     try {
       List<VisitDTO> futureVisits = visitService.getFutureBookedVisitsForUser(userId);
-
-      if (futureVisits.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body("No future visits found for the user with ID: " + userId);
-      }
 
       return ResponseEntity.ok(futureVisits);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("An error occurred while processing the request: " + e.getMessage());
+          .body(Collections.emptyList());
     }
   }
 
 
   @GetMapping("/all-future-visits")
   public ResponseEntity<?> getAllFutureBookedVisits(
-      @RequestParam(name = "userId", required = false) Long userId,
-      @RequestParam(name = "doctorId", required = false) Long doctorId) {
+      @RequestParam(name = "userId", required = false) UUID userId,
+      @RequestParam(name = "doctorId", required = false) UUID doctorId) {
     try {
       List<VisitDTO> futureVisits = visitService.getAllFutureBookedVisits(
           Optional.ofNullable(userId), Optional.ofNullable(doctorId));
 
-      if (futureVisits.isEmpty()) {
+      if (futureVisits.isEmpty() && doctorId==null) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body("No future visits found for the user with ID: " + userId);
       }
+
+      if (futureVisits.isEmpty() && userId==null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body("No future visits found for the doctor with ID: " + doctorId);
+      }
+
 
       return ResponseEntity.ok(futureVisits);
     } catch (Exception e) {
@@ -129,7 +126,7 @@ public class VisitController {
   }
 
   @PostMapping("/visitId/{visitId}/user/{userId}")
-  public ResponseEntity<String> bookVisit(@PathVariable UUID visitId, @PathVariable Long userId) {
+  public ResponseEntity<String> bookVisit(@PathVariable UUID visitId, @PathVariable UUID userId) {
     try {
       visitService.bookVisit(visitId, userId);
       return ResponseEntity.ok("User added to visit successfully.");
@@ -158,7 +155,7 @@ public class VisitController {
   @PostMapping("/add-visit")
   public ResponseEntity<String> addVisit(
       @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date visitDate,
-      @RequestParam Long doctorId,
+      @RequestParam UUID doctorId,
       @RequestParam String hours,
       @RequestParam int price,
       @RequestParam Long clinicId

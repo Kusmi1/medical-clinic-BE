@@ -13,22 +13,23 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VisitRepository extends JpaRepository<Visit, UUID> {
-  List<Visit> findByUserAccountId(Long userId);
+  List<Visit> findByUserAccountId(UUID userId);
 
-  List<Visit> findByUserAccountIdAndAvailableAndVisitDateBefore(Long userId, boolean available, Date currentDate);
-  List<Visit> findByUserAccountIdAndAvailableAndVisitDateAfter(Long userId, boolean available, Date currentDate);
+  List<Visit> findByUserAccountIdAndAvailableAndVisitDateBefore(UUID userId, boolean available, Date currentDate);
+  List<Visit> findByUserAccountIdAndAvailableAndVisitDateAfter(UUID userId, boolean available, Date currentDate);
+  List<Visit> findByDoctorIdAndAvailableAndVisitDateAfter(UUID doctorId, boolean available, Date currentDate);
+
   @Query("SELECT v FROM Visit v WHERE " +
-      "(:userId IS NULL OR v.userAccount.user.id = :userId) AND " +
-      "(:doctorId IS NULL OR v.doctor.id = :doctorId) AND " +
+      " v.userAccount.user.id = :userId AND " +
+      " v.doctor.id = :doctorId AND " +
       "(COALESCE(:userId, :doctorId) IS NOT NULL OR v.available = false) AND " +
       "v.visitDate > :currentDate " +
       "ORDER BY v.visitDate")
   List<Visit> findAllFutureVisits(
-      @Param("userId") Optional<Long> userId,
-      @Param("doctorId") Optional<Long> doctorId,
+      @Param("userId") UUID userId,
+      @Param("doctorId") UUID doctorId,
       @Param("currentDate") Date currentDate
   );
-
   @Query("SELECT v FROM Visit v WHERE " +
       " v.available = false AND " +
       "v.visitDate > :currentDate " +
