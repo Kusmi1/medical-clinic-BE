@@ -7,7 +7,7 @@ VALUES
 
 INSERT INTO users (id, username, first_name, last_name, email, password, pesel)
 VALUES
-    ('ebb6dede-9cef-40db-97ee-b83fa720e262', 'kusmi', 'Jan', 'Kowalski', 'jankowalski@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO', '9801234568'),
+    ('ebb6dede-9cef-40db-97ee-b83fa720e262', 'kusmi', 'Janek', 'Kowalski', 'jankowalski@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO', '9801234568'),
     ('bbcadb41-a42f-4dfc-9f06-ce61dc853a75', 'kusmi2', 'Szymek', 'Kowa', 'jankowalski2@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO', '9701284568'),
     ('ac763672-ffd0-4162-92f1-49fa1768beab', 'lekarz', 'Robert', 'Wiśniewski', 'lekarz@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO', '9908234768'),
     ('1803befb-f480-4d28-89c5-73bade5d2fed', 'pielegniarka', 'Anna', 'Szymczyk', 'pielegniarka@gmail.com', '$2a$10$FIU4yo53FAi1PM6yahouLOCUwYAhXrLM8Lay2abPH0tu5jfhhcCnO','9501234778');

@@ -1,5 +1,6 @@
 package com.example.medicalclinic.feature.doctor.model;
 
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class DoctorDTO {
-    private Long id;
+    private UUID id;
     private String name;
     private String surname;
 

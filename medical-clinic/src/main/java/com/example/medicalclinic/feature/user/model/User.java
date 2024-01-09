@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,8 +28,8 @@ import lombok.Setter;
     })
 public class User {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @GeneratedValue
+  private UUID id;
 
   @NotBlank
   @Size(max = 20)
@@ -67,7 +68,7 @@ public class User {
 
   public User( String firstName, String secondName, String lastName, String username,
       String email,String pesel, String password) {
-    this.id = id;
+//    this.id = id;
     this.firstName = firstName;
     this.secondName = secondName;
     this.lastName = lastName;

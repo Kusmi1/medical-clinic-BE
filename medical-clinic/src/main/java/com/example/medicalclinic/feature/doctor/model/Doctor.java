@@ -28,9 +28,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Doctor {
   @Id
-  @GeneratedValue
+//  @GeneratedValue
   @Column(name = "doctor_id")
-  private Long id;
+  private UUID  id;
 
   @Column( name = "name")
   private String name;
@@ -49,6 +49,12 @@ public class Doctor {
   @OneToMany(mappedBy = "doctor")
   private List<Visit> visits;
 
+  public Doctor(UUID id, String name, String surname, Set<Specialization> specializations) {
+    this.id = id;
+    this.name = name;
+    this.surname = surname;
+    this.specializations = specializations;
+  }
 
   public Set<Specialization> getSpecialization() {
     return specializations;

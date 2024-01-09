@@ -78,6 +78,7 @@ public class Visit {
   @OneToOne(mappedBy = "visit", cascade = CascadeType.ALL)
   @PrimaryKeyJoinColumn
   private VisitDetails visitDetails;
+
   public String toString() {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     return formatter.format(visitDate);
