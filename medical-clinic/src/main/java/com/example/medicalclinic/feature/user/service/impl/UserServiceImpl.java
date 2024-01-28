@@ -8,21 +8,19 @@ import com.example.medicalclinic.feature.role.persistence.RoleRepository;
 import com.example.medicalclinic.feature.specialization.model.Specialization;
 import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.model.UserDto;
-import com.example.medicalclinic.feature.user.model.UserTestDto;
 import com.example.medicalclinic.feature.user.persistence.UserRepository;
 import com.example.medicalclinic.feature.user.service.UserService;
+import com.example.medicalclinic.feature.visits.model.Visit;
+import com.example.medicalclinic.feature.visits.persistence.VisitRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +37,9 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   private RoleRepository roleRepository;
+
+  @Autowired
+  private VisitRepository visitRepository;
 
   @Autowired
   public UserServiceImpl(UserRepository userRepository) {
@@ -71,7 +72,8 @@ public class UserServiceImpl implements UserService {
   }
 
 
-  public void changeUserRoleAndSpecialization(UUID userId, ERole newRole, Set<Specialization> specializations) {
+  public void changeUserRoleAndSpecialization(UUID userId, ERole newRole,
+      Set<Specialization> specializations) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -95,15 +97,16 @@ public class UserServiceImpl implements UserService {
   }
 
 
-public List<UserDto> getUsersWithDoctorAndNurseRoles() {
-  List<ERole> roleNames = Arrays.asList(ERole.ROLE_USER, ERole.ROLE_NURSE);
+  public List<UserDto> getUsersWithDoctorAndNurseRoles() {
+    List<ERole> roleNames = Arrays.asList(ERole.ROLE_USER, ERole.ROLE_NURSE);
 
-  List<User> users= userRepository.findAllUsersByRoles_NameIn(roleNames);
+    List<User> users = userRepository.findAllUsersByRoles_NameIn(roleNames);
 
-  return users.stream()
-      .map(this::convertToDto)
-      .collect(Collectors.toList());
-}
+    return users.stream()
+        .map(this::convertToDto)
+        .collect(Collectors.toList());
+  }
+
   private UserDto convertToDto(User user) {
     UserDto userDto = new UserDto();
     userDto.setId(user.getId());
@@ -117,4 +120,21 @@ public List<UserDto> getUsersWithDoctorAndNurseRoles() {
     return userDto;
   }
 
+  public void deleteUserByID(UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new EntityNotFoundException("User not Found"));
+
+    if (user.getRoles().stream().anyMatch(
+        role -> role.getName() == ERole.ROLE_USER || role.getName() == ERole.ROLE_NURSE)) {
+
+      List<Visit> visits = visitRepository.findAllByUserAccountUserId(userId);
+
+      for (Visit visit : visits) {
+        visit.setUserAccount(null);
+        visit.setAvailable(true);
+        visitRepository.save(visit);
+      }
+      userRepository.delete(user);
+    }
+  }
 }

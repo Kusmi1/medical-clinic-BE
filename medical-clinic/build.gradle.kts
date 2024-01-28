@@ -35,15 +35,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-tomcat:1.2.1.RELEASE")
 	implementation("org.springframework.boot:spring-boot-devtools:3.2.1")
     compileOnly("org.projectlombok:lombok")
-//	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.1")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
-
-//	implementation("org.springframework.boot:spring-boot-devtools:3.2.1")
 }
 
 tasks.withType<Test> {

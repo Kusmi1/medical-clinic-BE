@@ -56,4 +56,6 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       @Param("specializationName") String specializationName);
 
   Optional<Visit> findByDoctorAndVisitDateAndHours(Doctor doctor, Date visitDate, String hours);
+
+  List<Visit> findAllByUserAccountUserId(UUID userId);
 }

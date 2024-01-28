@@ -3,21 +3,20 @@ package com.example.medicalclinic.feature.user.controller;
 import com.example.medicalclinic.feature.role.model.ERole;
 import com.example.medicalclinic.feature.specialization.model.Specialization;
 import com.example.medicalclinic.feature.specialization.persistance.SpecializationRepository;
-import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.model.UserDto;
-import com.example.medicalclinic.feature.user.model.UserTestDto;
 import com.example.medicalclinic.feature.user.service.impl.UserServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.HashSet;
 import java.util.List;
-
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -94,4 +93,16 @@ public class UserController {
     return  userService.getUsersWithDoctorAndNurseRoles();
   }
 
+  @DeleteMapping("/delete/{userId}")
+  @PreAuthorize("hasRole('USER') or hasRole('NURSE') or hasRole('DOCTOR')")
+  public ResponseEntity<String> deleteUser(@PathVariable UUID userId) {
+    try {
+      userService.deleteUserByID(userId);
+      return ResponseEntity.ok().body("User deleted successfully");
+    } catch (EntityNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
+    }
+  }
 }
