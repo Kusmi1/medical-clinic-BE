@@ -28,7 +28,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Doctor {
   @Id
-//  @GeneratedValue
   @Column(name = "doctor_id")
   private UUID  id;
 
