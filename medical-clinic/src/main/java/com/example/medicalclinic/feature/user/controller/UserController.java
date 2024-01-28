@@ -94,14 +94,12 @@ public class UserController {
   }
 
   @DeleteMapping("/delete/{userId}")
-  @PreAuthorize("hasRole('USER') or hasRole('NURSE') or hasRole('DOCTOR')")
-  public ResponseEntity<String> deleteUser(@PathVariable UUID userId) {
+ public ResponseEntity<String> deleteUser(@PathVariable UUID userId) {
     try {
       userService.deleteUserByID(userId);
       return ResponseEntity.ok().body("User deleted successfully");
-    } catch (EntityNotFoundException e) {
-      return ResponseEntity.notFound().build();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
     }
   }
