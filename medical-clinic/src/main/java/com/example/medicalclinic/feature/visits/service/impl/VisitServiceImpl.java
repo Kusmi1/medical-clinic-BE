@@ -2,6 +2,7 @@ package com.example.medicalclinic.feature.visits.service.impl;
 
 import com.example.medicalclinic.exception.CustomNotFoundException;
 import com.example.medicalclinic.exception.EmptyListException;
+import com.example.medicalclinic.exception.NotEnoughMoneyException;
 import com.example.medicalclinic.exception.VisitNotAvailableException;
 import com.example.medicalclinic.feature.doctor.model.Doctor;
 import com.example.medicalclinic.feature.doctor.persistence.DoctorRepository;
@@ -12,6 +13,7 @@ import com.example.medicalclinic.feature.specialization.model.Specialization;
 import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.persistence.UserRepository;
 import com.example.medicalclinic.feature.userAccount.model.UserAccount;
+import com.example.medicalclinic.feature.userAccount.persistence.UserAccountRepository;
 import com.example.medicalclinic.feature.visitDetails.model.VisitDetails;
 import com.example.medicalclinic.feature.visits.model.HourDTO;
 import com.example.medicalclinic.feature.visits.model.Visit;
@@ -40,13 +42,15 @@ public class VisitServiceImpl implements VisitService {
 
   private VisitRepository visitRepository;
   private UserRepository userRepository;
+  private UserAccountRepository userAccountRepository;
   private DoctorRepository doctorRepository;
   private MedicalClinicRepository medicalClinicRepository;
 
   public VisitServiceImpl(UserRepository userRepository, VisitRepository visitRepository,
-      DoctorRepository doctorRepository, MedicalClinicRepository medicalClinicRepository) {
+      DoctorRepository doctorRepository, MedicalClinicRepository medicalClinicRepository, UserAccountRepository userAccountRepository) {
     this.visitRepository = visitRepository;
     this.userRepository = userRepository;
+    this.userAccountRepository = userAccountRepository;
     this.doctorRepository = doctorRepository;
     this.medicalClinicRepository = medicalClinicRepository;
   }
@@ -84,21 +88,19 @@ public class VisitServiceImpl implements VisitService {
 
 
     public List<VisitDTO> getAllFutureBookedVisits(Optional<UUID> userId, Optional<UUID> doctorId) {
-      System.out.println("userId is present: " + userId.isPresent() + ", doctorId is present: " + doctorId.isPresent());
+
       List<Visit> futureBookedVisits=new ArrayList<>();
 
       if (doctorId.isPresent() && userId.isPresent()) {
         futureBookedVisits = visitRepository.findAllFutureVisits(
             userId.orElse(null), doctorId.orElse(null), new Date());
-        System.out.println("userId: " + userId + ", doctorId: " + doctorId+"futureBookedVisits is empty "+futureBookedVisits.isEmpty());
       } else if (futureBookedVisits.isEmpty()&& !userId.isPresent() && doctorId.isPresent()) {
         futureBookedVisits = visitRepository.findByDoctorIdAndAvailableAndVisitDateAfter(
             doctorId.orElse(null), false, new Date());
-        System.out.println("userId: null, doctorId: " + doctorId+"futureBookedVisits is empty2 "+futureBookedVisits.isEmpty());
+
       } else if (futureBookedVisits.isEmpty()&&userId.isPresent() && !doctorId.isPresent()) {
         futureBookedVisits = visitRepository.findByUserAccountIdAndAvailableAndVisitDateAfter(
             userId.orElse(null), false, new Date());
-        System.out.println("userId: " + userId + ", doctorId: null"+"futureBookedVisits is empty3 "+futureBookedVisits.isEmpty());
       } else {
         futureBookedVisits = visitRepository.findAllFutureVisitsbyEmptyValue(new Date());
       }
@@ -128,7 +130,7 @@ public class VisitServiceImpl implements VisitService {
           specializationName, choosenDate);
 
         if (availableVisits.isEmpty()) {
-          throw new EmptyListException("No visits are available for this date2222.");
+          throw new EmptyListException("No visits are available for this date.");
         }
     }
 
@@ -150,10 +152,10 @@ public class VisitServiceImpl implements VisitService {
         dto.setDoctorId(currentVisit.getDoctor().getId());
         dto.setDoctorName(currentVisit.getDoctor().getName());
         dto.setDoctorSurname(currentVisit.getDoctor().getSurname());
+        dto.setPrice(currentVisit.getPrice());
         dto.setDate(new SimpleDateFormat("yyyy-MM-dd").format(currentVisit.getVisitDate()));
         dto.setHour(currentVisit.getHours());
         dto.setHours(hours);
-
         uniqueVisitsMap.put(key, dto);
       } else {
 
@@ -174,10 +176,6 @@ public class VisitServiceImpl implements VisitService {
         return dto1.getHours().get(0).getHour().compareTo(dto2.getHours().get(0).getHour());
       }
     });
-//    if(sortedVisits.isEmpty()){
-//      visitRepository.findAvailableVisitsBySpecializationOrderedByCurrentDate(
-//          specializationName);
-//    }
     return sortedVisits;
   }
 
@@ -198,8 +196,11 @@ public class VisitServiceImpl implements VisitService {
       if (visit.getAvailable() && visit.getUserAccount() == null) {
         visit.setUserAccount(userAccount);
         visit.setAvailable(false);
-        userAccount.setBalance(userAccount.getBalance()- visit.getPrice());
-        visitRepository.save(visit);
+        if(userAccount.getBalance()>=visit.getPrice()) {
+          userAccount.setBalance(userAccount.getBalance() - visit.getPrice());
+          visitRepository.save(visit);
+        } else throw new NotEnoughMoneyException("User doesn't have enought money");
+
       } else {
         throw new VisitNotAvailableException("Visit is not available or already assigned.");
       }
@@ -212,10 +213,12 @@ public class VisitServiceImpl implements VisitService {
     try {
       Visit visit = visitRepository.findById(visitId)
           .orElseThrow(() -> new NotFoundException());
-
+      UserAccount userAccount = visit.getUserAccount();
       if (!visit.getAvailable() && visit.getUserAccount() != null) {
         visit.setAvailable(true);
         visit.setUserAccount(null);
+        userAccount.setBalance(userAccount.getBalance() + visit.getPrice());
+        userAccountRepository.save(userAccount);
         visitRepository.save(visit);
 
       } else {
@@ -232,40 +235,6 @@ public class VisitServiceImpl implements VisitService {
     return convertToVisitDTO(visit);
   }
 
-//  public void addVisit(Date visitDate, UUID doctorId, String hours, int price, Long clinicId) {
-//    try {
-//      Doctor doctor = doctorRepository.findById(doctorId)
-//          .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
-//
-//      MedicalClinic medicalClinic = medicalClinicRepository.findById(clinicId)
-//          .orElseThrow(() -> new EntityNotFoundException("Clinic not found"));
-//
-//      VisitDetails visitDetails = new VisitDetails();
-//      visitDetails.setDescription("");
-//      visitDetails.setMedicines("");
-//
-//      if (isDoctorAvailable(doctor, visitDate, hours)) {
-//        Visit visit = new Visit();
-//        visit.setVisitDate(visitDate);
-//        visit.setAvailable(true);
-//        visit.setPrice(price);
-//        visit.setHours(hours);
-//        visit.setDoctor(doctor);
-//        visit.setMedicalClinic(medicalClinic);
-//        visit.setVisitDetails(visitDetails);
-//        visitDetails.setVisit(visit);
-//        visitRepository.save(visit);
-//      } else {
-//        throw new RuntimeException("Doctor is not available at the specified date and hour");
-//      }
-//    } catch (EntityNotFoundException e) {
-//      e.printStackTrace();
-//      throw new RuntimeException("Error adding visit: Doctor not found");
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//      throw new RuntimeException("Error adding visit");
-//    }
-//  }
 
 public void addVisit(Date visitDate, UUID doctorId, String startHour, String endHour, int stepMinutes, int price, Long clinicId) {
   try {
@@ -349,6 +318,7 @@ public void addVisit(Date visitDate, UUID doctorId, String startHour, String end
     dto.setHour(visit.getHours());
     dto.setHours(hours);
     dto.setMedicalClinic(clinicDto);
+    dto.setPrice(visit.getPrice());
 
     UserAccount userAccount = visit.getUserAccount();
     if (userAccount != null) {

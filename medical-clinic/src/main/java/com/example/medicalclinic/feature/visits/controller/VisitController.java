@@ -1,6 +1,7 @@
 package com.example.medicalclinic.feature.visits.controller;
 
 import com.example.medicalclinic.exception.EmptyListException;
+import com.example.medicalclinic.exception.NotEnoughMoneyException;
 import com.example.medicalclinic.exception.VisitNotAvailableException;
 import com.example.medicalclinic.feature.visits.model.HourDTO;
 import com.example.medicalclinic.feature.visits.model.Visit;
@@ -125,6 +126,10 @@ public class VisitController {
 
     } catch (VisitNotAvailableException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    catch(NotEnoughMoneyException e){
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Not Money ");
+
     }
   }
 
