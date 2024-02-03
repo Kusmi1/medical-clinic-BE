@@ -20,6 +20,7 @@ import com.example.medicalclinic.feature.visits.persistence.VisitRepository;
 import com.example.medicalclinic.feature.visits.service.VisitService;
 import jakarta.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -104,13 +105,12 @@ public class VisitServiceImpl implements VisitService {
 
       if (futureBookedVisits.isEmpty()) {
         return Collections.emptyList();
-//        throw new CustomNotFoundException("No future visits found for the given criteria.");
       }
 
       return futureBookedVisits.stream().map(this::convertToVisitDTO).collect(Collectors.toList());
     }
 
-///////////////////////////////////////
+
 
   public List<VisitDTO> getAvailableVisitsBySpecialization(String specializationName,
       Optional<Date> choosenDate) {
@@ -122,9 +122,14 @@ public class VisitServiceImpl implements VisitService {
       availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByCurrentDate(
           specializationName);
       availableVisits.sort((v1, v2) -> v1.getVisitDate().compareTo(v2.getVisitDate()));
+
     } else {
       availableVisits = visitRepository.findAvailableVisitsBySpecializationOrderedByDate(
           specializationName, choosenDate);
+
+        if (availableVisits.isEmpty()) {
+          throw new EmptyListException("No visits are available for this date2222.");
+        }
     }
 
     Map<String, VisitDTO> uniqueVisitsMap = new HashMap<>();
@@ -169,7 +174,10 @@ public class VisitServiceImpl implements VisitService {
         return dto1.getHours().get(0).getHour().compareTo(dto2.getHours().get(0).getHour());
       }
     });
-
+//    if(sortedVisits.isEmpty()){
+//      visitRepository.findAvailableVisitsBySpecializationOrderedByCurrentDate(
+//          specializationName);
+//    }
     return sortedVisits;
   }
 
@@ -190,6 +198,7 @@ public class VisitServiceImpl implements VisitService {
       if (visit.getAvailable() && visit.getUserAccount() == null) {
         visit.setUserAccount(userAccount);
         visit.setAvailable(false);
+        userAccount.setBalance(userAccount.getBalance()- visit.getPrice());
         visitRepository.save(visit);
       } else {
         throw new VisitNotAvailableException("Visit is not available or already assigned.");
@@ -223,40 +232,82 @@ public class VisitServiceImpl implements VisitService {
     return convertToVisitDTO(visit);
   }
 
-  public void addVisit(Date visitDate, UUID doctorId, String hours, int price, Long clinicId) {
-    try {
-      Doctor doctor = doctorRepository.findById(doctorId)
-          .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+//  public void addVisit(Date visitDate, UUID doctorId, String hours, int price, Long clinicId) {
+//    try {
+//      Doctor doctor = doctorRepository.findById(doctorId)
+//          .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+//
+//      MedicalClinic medicalClinic = medicalClinicRepository.findById(clinicId)
+//          .orElseThrow(() -> new EntityNotFoundException("Clinic not found"));
+//
+//      VisitDetails visitDetails = new VisitDetails();
+//      visitDetails.setDescription("");
+//      visitDetails.setMedicines("");
+//
+//      if (isDoctorAvailable(doctor, visitDate, hours)) {
+//        Visit visit = new Visit();
+//        visit.setVisitDate(visitDate);
+//        visit.setAvailable(true);
+//        visit.setPrice(price);
+//        visit.setHours(hours);
+//        visit.setDoctor(doctor);
+//        visit.setMedicalClinic(medicalClinic);
+//        visit.setVisitDetails(visitDetails);
+//        visitDetails.setVisit(visit);
+//        visitRepository.save(visit);
+//      } else {
+//        throw new RuntimeException("Doctor is not available at the specified date and hour");
+//      }
+//    } catch (EntityNotFoundException e) {
+//      e.printStackTrace();
+//      throw new RuntimeException("Error adding visit: Doctor not found");
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//      throw new RuntimeException("Error adding visit");
+//    }
+//  }
 
-      MedicalClinic medicalClinic = medicalClinicRepository.findById(clinicId)
-          .orElseThrow(() -> new EntityNotFoundException("Clinic not found"));
+public void addVisit(Date visitDate, UUID doctorId, String startHour, String endHour, int stepMinutes, int price, Long clinicId) {
+  try {
+    Doctor doctor = doctorRepository.findById(doctorId)
+        .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
 
-      VisitDetails visitDetails = new VisitDetails();
-      visitDetails.setDescription("");
-      visitDetails.setMedicines("");
+    MedicalClinic medicalClinic = medicalClinicRepository.findById(clinicId)
+        .orElseThrow(() -> new EntityNotFoundException("Clinic not found"));
 
-      if (isDoctorAvailable(doctor, visitDate, hours)) {
+    LocalTime startTime = LocalTime.parse(startHour);
+    LocalTime endTime = LocalTime.parse(endHour);
+
+    while (startTime.isBefore(endTime)) {
+      if (isDoctorAvailable(doctor, visitDate, startTime.toString())) {
+        VisitDetails visitDetails = new VisitDetails();
+        visitDetails.setDescription("");
+        visitDetails.setMedicines("");
+
         Visit visit = new Visit();
         visit.setVisitDate(visitDate);
         visit.setAvailable(true);
         visit.setPrice(price);
-        visit.setHours(hours);
+        visit.setHours(startTime.toString());
         visit.setDoctor(doctor);
         visit.setMedicalClinic(medicalClinic);
         visit.setVisitDetails(visitDetails);
         visitDetails.setVisit(visit);
         visitRepository.save(visit);
       } else {
-        throw new RuntimeException("Doctor is not available at the specified date and hour");
+        throw new RuntimeException("Doctor is not available at " + startTime.toString());
       }
-    } catch (EntityNotFoundException e) {
-      e.printStackTrace();
-      throw new RuntimeException("Error adding visit: Doctor not found");
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException("Error adding visit");
+      startTime = startTime.plusMinutes(stepMinutes);
     }
+  } catch (EntityNotFoundException e) {
+    e.printStackTrace();
+    throw new RuntimeException("Error adding visit: " + e.getMessage());
+  } catch (Exception e) {
+    e.printStackTrace();
+    throw new RuntimeException("Error adding visit: " + e.getMessage());
   }
+}
+
 
   private boolean isDoctorAvailable(Doctor doctor, Date visitDate, String hours) {
     Optional<Visit> existingVisit = visitRepository.findByDoctorAndVisitDateAndHours(doctor,
