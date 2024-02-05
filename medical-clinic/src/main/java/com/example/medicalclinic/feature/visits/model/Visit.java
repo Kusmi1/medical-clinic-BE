@@ -51,6 +51,10 @@ public class Visit {
   @Temporal(TemporalType.DATE)
   private Date visitDate;
 
+  @Column(name = "dateOfAddingVisit")
+  @Temporal(TemporalType.DATE)
+  private Date dateOfAddingVisit;
+
 
   @Column(name = "available")
   private Boolean available;

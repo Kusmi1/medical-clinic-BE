@@ -12,4 +12,5 @@ import lombok.Setter;
 public class VisitDetailsDto {
   private String medicines;
   private String description;
+  private String pin;
 }

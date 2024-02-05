@@ -77,7 +77,6 @@ public class UserController {
           }
         }
       }
-
       userService.changeUserRoleAndSpecialization(userId, newRole, specializations);
       return ResponseEntity.ok().body("User role updated successfully.");
     } catch (RuntimeException e) {
@@ -90,16 +89,15 @@ public class UserController {
 
   @GetMapping("/allByRole")
   public List<UserDto> getUsersWithDoctorAndNurseRoles() {
-    return  userService.getUsersWithDoctorAndNurseRoles();
+    return userService.getUsersWithDoctorAndNurseRoles();
   }
 
   @DeleteMapping("/delete/{userId}")
- public ResponseEntity<String> deleteUser(@PathVariable UUID userId) {
+  public ResponseEntity<String> deleteUser(@PathVariable UUID userId) {
     try {
       userService.deleteUserByID(userId);
       return ResponseEntity.ok().body("User deleted successfully");
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
     }
   }

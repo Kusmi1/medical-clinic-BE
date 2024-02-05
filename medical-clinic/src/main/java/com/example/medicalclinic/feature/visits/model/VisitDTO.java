@@ -22,11 +22,13 @@ public class VisitDTO {
   private String doctorSurname;
   private UUID userId;
   private String userName;
+  private double price;
   private String userSurname;
   private String date;
   private String hour;
   private List<HourDTO> hours;
   private MedicalClinicDto medicalClinic;
+
 
 
   public void setUserInformation(UserAccount userAccount) {

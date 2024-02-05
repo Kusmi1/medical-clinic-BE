@@ -36,6 +36,9 @@ public class VisitDetails {
   @Column(name = "description", length=1000)
   private String description;
 
+  @Column(name = "pin", length=4)
+  private String pin;
+
   @OneToOne
   @MapsId
   @JoinColumn(name = "id")

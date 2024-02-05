@@ -32,6 +32,7 @@ public class VisitDetailsService {
     VisitDetailsDto dto = new VisitDetailsDto();
     dto.setMedicines(visitDetails.getMedicines());
     dto.setDescription(visitDetails.getDescription());
+    dto.setPin(visitDetails.getPin());
     return dto;
   }
 

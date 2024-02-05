@@ -10,6 +10,7 @@ import com.example.medicalclinic.feature.user.model.User;
 import com.example.medicalclinic.feature.user.model.UserDto;
 import com.example.medicalclinic.feature.user.persistence.UserRepository;
 import com.example.medicalclinic.feature.user.service.UserService;
+import com.example.medicalclinic.feature.userAccount.model.UserAccount;
 import com.example.medicalclinic.feature.visits.model.Visit;
 import com.example.medicalclinic.feature.visits.persistence.VisitRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -102,13 +103,15 @@ public class UserServiceImpl implements UserService {
 
     List<User> users = userRepository.findAllUsersByRoles_NameIn(roleNames);
 
+
     return users.stream()
         .map(this::convertToDto)
         .collect(Collectors.toList());
   }
 
   private UserDto convertToDto(User user) {
-    UserDto userDto = new UserDto();
+    UserAccount userAccount=user.getAccount();
+        UserDto userDto = new UserDto();
     userDto.setId(user.getId());
     userDto.setName(user.getFirstName());
     userDto.setSecondName(user.getSecondName());
@@ -116,7 +119,9 @@ public class UserServiceImpl implements UserService {
     userDto.setUserName(user.getUsername());
     userDto.setEmail(user.getEmail());
     userDto.setPesel(user.getPesel());
-
+    if (userAccount != null) {
+      userDto.setBalance(userAccount.getBalance());
+    }
     return userDto;
   }
 

@@ -1,5 +1,7 @@
 package com.example.medicalclinic.feature.visits.controller;
 
+import com.example.medicalclinic.exception.EmptyListException;
+import com.example.medicalclinic.exception.NotEnoughMoneyException;
 import com.example.medicalclinic.exception.VisitNotAvailableException;
 import com.example.medicalclinic.feature.visits.model.HourDTO;
 import com.example.medicalclinic.feature.visits.model.Visit;
@@ -96,6 +98,10 @@ public class VisitController {
             .body("No future visits found for the doctor with ID: " + doctorId);
       }
 
+      if (futureVisits.isEmpty() && userId==null && doctorId==null ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body("No future visits found for the doctor with ID: " + doctorId+ " and user with ID: " + userId);
+      }
 
       return ResponseEntity.ok(futureVisits);
     } catch (Exception e) {
@@ -104,16 +110,6 @@ public class VisitController {
     }
   }
 
-  @GetMapping("/{specializationName}")
-  public ResponseEntity<List<VisitDTO>> getAvailableVisitsBySpecialization(
-      @PathVariable String specializationName,
-      @RequestParam(name = "visitDate", required = false)
-      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date visitDate) {
-    List<VisitDTO> availableVisits = visitService.getAvailableVisitsBySpecialization(
-        specializationName,
-        Optional.ofNullable(visitDate));
-    return ResponseEntity.ok(availableVisits);
-  }
 
   @GetMapping("/byId/{visitId}")
   public ResponseEntity<VisitDTO> getVisitById(@PathVariable UUID visitId) {
@@ -126,15 +122,20 @@ public class VisitController {
   }
 
   @PostMapping("/visitId/{visitId}/user/{userId}")
-  public ResponseEntity<String> bookVisit(@PathVariable UUID visitId, @PathVariable UUID userId) {
+  public ResponseEntity<String> bookVisit(@PathVariable UUID visitId, @PathVariable UUID userId,
+      @RequestParam(name = "pin", required = false) String pin) {
     try {
-      visitService.bookVisit(visitId, userId);
+      visitService.bookVisit(visitId, userId,pin);
       return ResponseEntity.ok("User added to visit successfully.");
     } catch (EntityNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Visit or User not found.");
 
     } catch (VisitNotAvailableException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    catch(NotEnoughMoneyException e){
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Not Money ");
+
     }
   }
 
@@ -151,12 +152,13 @@ public class VisitController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
-
   @PostMapping("/add-visit")
   public ResponseEntity<String> addVisit(
       @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date visitDate,
       @RequestParam UUID doctorId,
-      @RequestParam String hours,
+      @RequestParam String startHour,
+      @RequestParam String endHour,
+      @RequestParam int stepHour,
       @RequestParam int price,
       @RequestParam Long clinicId
   ) {
@@ -164,13 +166,44 @@ public class VisitController {
       visitService.addVisit(
           visitDate,
           doctorId,
-          hours,
+          startHour,
+          endHour,
+          stepHour,
           price,
           clinicId);
-      return ResponseEntity.ok("Visit added successfully.");
+      return ResponseEntity.ok("Visit(s) added successfully.");
     } catch (RuntimeException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
     }
+}
+
+  @GetMapping("/{specializationName}")
+  public ResponseEntity<List<VisitDTO>> getAvailableVisitsBySpecialization(
+      @PathVariable String specializationName,
+      @RequestParam(name = "visitDate", required = false)
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date visitDate) {
+    try{
+      List<VisitDTO> availableVisits = visitService.getAvailableVisitsBySpecialization(
+          specializationName,
+          Optional.ofNullable(visitDate));
+      return ResponseEntity.ok(availableVisits);
+    }
+    catch(EmptyListException e){
+      List<VisitDTO> availableVisits = visitService.getAvailableVisitsBySpecialization(
+          specializationName,
+          Optional.empty());
+      return new ResponseEntity<>(availableVisits, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @GetMapping("/todayadded")
+  public ResponseEntity<List<VisitDTO>> getVisitsByDateAndOptionalSpecialization(
+      @RequestParam(name = "specializationName", required = false) String specializationName) {
+
+    Optional<String> optionalSpecializationName = Optional.ofNullable(specializationName);
+    List<VisitDTO> visits = visitService.getVisitsByDateAndOptionalSpecialization(optionalSpecializationName);
+
+    return ResponseEntity.ok(visits);
   }
 }
 
