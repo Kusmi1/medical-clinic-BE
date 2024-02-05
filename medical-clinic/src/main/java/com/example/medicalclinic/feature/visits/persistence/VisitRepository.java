@@ -13,11 +13,17 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VisitRepository extends JpaRepository<Visit, UUID> {
+
   List<Visit> findByUserAccountId(UUID userId);
 
-  List<Visit> findByUserAccountIdAndAvailableAndVisitDateBefore(UUID userId, boolean available, Date currentDate);
-  List<Visit> findByUserAccountIdAndAvailableAndVisitDateAfter(UUID userId, boolean available, Date currentDate);
-  List<Visit> findByDoctorIdAndAvailableAndVisitDateAfter(UUID doctorId, boolean available, Date currentDate);
+  List<Visit> findByUserAccountIdAndAvailableAndVisitDateBefore(UUID userId, boolean available,
+      Date currentDate);
+
+  List<Visit> findByUserAccountIdAndAvailableAndVisitDateAfter(UUID userId, boolean available,
+      Date currentDate);
+
+  List<Visit> findByDoctorIdAndAvailableAndVisitDateAfter(UUID doctorId, boolean available,
+      Date currentDate);
 
   @Query("SELECT v FROM Visit v WHERE " +
       " v.userAccount.user.id = :userId AND " +
@@ -30,6 +36,7 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       @Param("doctorId") UUID doctorId,
       @Param("currentDate") Date currentDate
   );
+
   @Query("SELECT v FROM Visit v WHERE " +
       " v.available = false AND " +
       "v.visitDate > :currentDate " +
@@ -44,7 +51,7 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       "AND v.visitDate = date(:visitDate) " +
       "ORDER BY  v.visitDate")
   List<Visit> findAvailableVisitsBySpecializationOrderedByDate(
-      @Param("specializationName")   String specializationName,
+      @Param("specializationName") String specializationName,
       @Param("visitDate") Optional<Date> visitDate);
 
   @Query("SELECT v FROM Visit v " +
@@ -54,6 +61,17 @@ public interface VisitRepository extends JpaRepository<Visit, UUID> {
       "ORDER BY v.visitDate")
   List<Visit> findAvailableVisitsBySpecializationOrderedByCurrentDate(
       @Param("specializationName") String specializationName);
+
+  List<Visit> findByDateOfAddingVisit(Date dateOfAddingVisit);
+
+  @Query("SELECT v FROM Visit v " +
+      "WHERE :specializationName IN (SELECT s.name FROM v.doctor.specializations s) " +
+      "AND v.dateOfAddingVisit = :dateOfAddingVisit " +
+      "ORDER BY  v.visitDate")
+  List<Visit> findByDateOfAddingVisitAndSpecializationName(
+      @Param("dateOfAddingVisit") Date dateOfAddingVisit,
+      @Param("specializationName") Optional<String> specializationName);
+
 
   Optional<Visit> findByDoctorAndVisitDateAndHours(Doctor doctor, Date visitDate, String hours);
 

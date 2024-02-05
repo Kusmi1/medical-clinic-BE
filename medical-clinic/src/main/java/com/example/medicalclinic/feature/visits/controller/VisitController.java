@@ -98,6 +98,11 @@ public class VisitController {
             .body("No future visits found for the doctor with ID: " + doctorId);
       }
 
+      if (futureVisits.isEmpty() && userId==null && doctorId==null ) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body("No future visits found for the doctor with ID: " + doctorId+ " and user with ID: " + userId);
+      }
+
       return ResponseEntity.ok(futureVisits);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -117,9 +122,10 @@ public class VisitController {
   }
 
   @PostMapping("/visitId/{visitId}/user/{userId}")
-  public ResponseEntity<String> bookVisit(@PathVariable UUID visitId, @PathVariable UUID userId) {
+  public ResponseEntity<String> bookVisit(@PathVariable UUID visitId, @PathVariable UUID userId,
+      @RequestParam(name = "pin", required = false) String pin) {
     try {
-      visitService.bookVisit(visitId, userId);
+      visitService.bookVisit(visitId, userId,pin);
       return ResponseEntity.ok("User added to visit successfully.");
     } catch (EntityNotFoundException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Visit or User not found.");
@@ -188,6 +194,16 @@ public class VisitController {
           Optional.empty());
       return new ResponseEntity<>(availableVisits, HttpStatus.NOT_FOUND);
     }
+  }
+
+  @GetMapping("/todayadded")
+  public ResponseEntity<List<VisitDTO>> getVisitsByDateAndOptionalSpecialization(
+      @RequestParam(name = "specializationName", required = false) String specializationName) {
+
+    Optional<String> optionalSpecializationName = Optional.ofNullable(specializationName);
+    List<VisitDTO> visits = visitService.getVisitsByDateAndOptionalSpecialization(optionalSpecializationName);
+
+    return ResponseEntity.ok(visits);
   }
 }
 

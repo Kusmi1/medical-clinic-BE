@@ -68,7 +68,6 @@ public class User {
 
   public User( String firstName, String secondName, String lastName, String username,
       String email,String pesel, String password) {
-//    this.id = id;
     this.firstName = firstName;
     this.secondName = secondName;
     this.lastName = lastName;
